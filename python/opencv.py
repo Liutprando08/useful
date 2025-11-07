@@ -2,6 +2,8 @@ import cv2
 import pytesseract
 import tkinter as tk
 from tkinter import filedialog
+import numpy as np
+import pandas as pd
 
 
 def preprocess_image(image_path):
