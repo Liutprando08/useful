@@ -2,8 +2,6 @@ import cv2
 import pytesseract
 import tkinter as tk
 from tkinter import filedialog
-import numpy as np
-import pandas as pd
 
 
 def preprocess_image(image_path):
@@ -15,14 +13,19 @@ def preprocess_image(image_path):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     # riduzione del rumore
-    gray = cv2.medianBlur(gray, 3)
+    gray = cv2.bilateralFilter(gray, 9, 75, 75)
 
     # BInarizzazione con Otsu
-    _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    _, thresh = cv2.threshold(
+        gray,  # valore di soglia (da 0 a 255)
+        127,
+        255,  # valore massimo assegnato ai pixel "bianchi"
+        cv2.THRESH_BINARY,  # tipo di threshold
+    )
 
     # Morfologia per pulizia piccoli artefatti
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 1))
-    processed = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
+    processed = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
 
     # allineamento testo
     coords = cv2.findNonZero(processed)
@@ -42,6 +45,9 @@ def preprocess_image(image_path):
     else:
         rotated = processed
 
+    cv2.imshow("immagine", rotated)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
     return rotated
 
 
