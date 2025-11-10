@@ -15,6 +15,8 @@ def preprocess_image(image_path):
     # riduzione del rumore
     gray = cv2.bilateralFilter(gray, 9, 75, 75)
 
+    gray = cv2.medianBlur(gray, 5)
+
     # BInarizzazione con Otsu
     _, thresh = cv2.threshold(
         gray,  # valore di soglia (da 0 a 255)
@@ -45,9 +47,6 @@ def preprocess_image(image_path):
     else:
         rotated = processed
 
-    cv2.imshow("immagine", rotated)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
     return rotated
 
 
