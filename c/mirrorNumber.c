@@ -9,13 +9,14 @@ int main(void) {
 
   printf("scrivi il numero per vedere se si puo invertire");
   scanf("%d", &num);
-
+  // calcolo non necessario imparare usare math.h
   quadrato = pow(num, 2);
   while (quadrato != 0) {
     resto1 = quadrato % 10;
     specchio1 = specchio1 * 10 + resto1;
     quadrato = quadrato / 10;
   }
+  // calcolo per far tornare normale
   radice = sqrt(specchio1);
 
   while (radice != 0) {
