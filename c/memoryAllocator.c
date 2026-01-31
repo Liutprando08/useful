@@ -1,4 +1,6 @@
 #include <assert.h>
+#include <bits/pthreadtypes.h>
+#include <pthread.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -11,8 +13,10 @@
 
 uint8_t memory_pool[POOL_SIZE];
 void *free_list_head;
+pthread_mutex_t lock;
 
-void pool_init() {
+void *pool_init(void *p) {
+  pthread_mutex_lock(&lock);
   free_list_head = &memory_pool[0];
   for (int i = 0; i < POOL_BLOCKS - 1; i++) {
     void *current = &memory_pool[i * BLOCK_SIZE];
@@ -21,8 +25,9 @@ void pool_init() {
   }
   *(void **)&memory_pool[(POOL_BLOCKS - 1) * BLOCK_SIZE] = NULL;
   printf("indirizzo base; %p", (void *)memory_pool);
+  pthread_mutex_unlock(&lock);
 }
-void *my_malloc() {
+void *my_malloc(void *p) {
   if (free_list_head == NULL) {
     printf("Out of memory\n");
 
@@ -48,10 +53,17 @@ struct payload {
 };
 
 int main(int argc, char *argv[]) {
-  pool_init();
-  struct payload *p1 = (struct payload *)my_malloc();
-  struct payload *p2 = (struct payload *)my_malloc();
-  struct payload *p3 = (struct payload *)my_malloc();
+  void *result;
+  pthread_t thread;
+  pthread_mutex_init(&lock, NULL);
+  pthread_create(&thread, NULL, pool_init, (void *)NULL);
+  int status = pthread_create(&thread, NULL, my_malloc, (void *)NULL);
+  pthread_join(thread, result);
+  struct payload *p1 = (struct payload *)result;
+  struct payload *p2 = (struct payload *)result;
+
+  struct payload *p3 = (struct payload *)result;
+  pthread_mutex_lock(&lock);
 
   if (p1)
     p1->id = 100;
@@ -59,13 +71,15 @@ int main(int argc, char *argv[]) {
     p2->id = 200;
 
   my_free(p2);
-  struct payload *p4 = (struct payload *)my_malloc();
-
+  pthread_mutex_unlock(&lock);
+  struct payload *p4 = (struct payload *)result;
+  pthread_mutex_lock(&lock);
   if (p4 == p2) {
     printf("test superato\n");
 
   } else {
     printf("test fallito\n");
   }
+  pthread_mutex_unlock(&lock);
   return EXIT_SUCCESS;
 }
