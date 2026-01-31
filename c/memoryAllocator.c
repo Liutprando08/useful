@@ -14,16 +14,58 @@ void *free_list_head;
 
 void pool_init() {
   free_list_head = &memory_pool[0];
-  for (int i = 0; i < POOL_BLOCKS; i++) {
-    uint8_t *current = &memory_pool[i * BLOCK_SIZE];
-    uint8_t *next = &memory_pool[(i + 1) * BLOCK_SIZE];
+  for (int i = 0; i < POOL_BLOCKS - 1; i++) {
+    void *current = &memory_pool[i * BLOCK_SIZE];
+    void *next = &memory_pool[(i + 1) * BLOCK_SIZE];
     *(void **)current = next;
   }
   *(void **)&memory_pool[(POOL_BLOCKS - 1) * BLOCK_SIZE] = NULL;
   printf("indirizzo base; %p", (void *)memory_pool);
 }
+void *my_malloc() {
+  if (free_list_head == NULL) {
+    printf("Out of memory\n");
+
+    return NULL;
+  }
+  void *ptr = free_list_head;
+  free_list_head = *(void **)ptr;
+  printf("liberato blocco a: %p\n", ptr);
+  return ptr;
+}
+void my_free(void *ptr) {
+
+  if (ptr == NULL) {
+    return;
+  }
+  *(void **)ptr = free_list_head;
+  free_list_head = ptr;
+  printf("liberato blocco a: %p\n", ptr);
+}
+struct payload {
+  int id;
+  char data[20];
+};
 
 int main(int argc, char *argv[]) {
   pool_init();
+  struct payload *p1 = (struct payload *)my_malloc();
+  struct payload *p2 = (struct payload *)my_malloc();
+  struct payload *p3 = (struct payload *)my_malloc();
+
+  if (p1)
+    p1->id = 100;
+  if (p2)
+    p2->id = 200;
+
+  my_free(p2);
+  struct payload *p4 = (struct payload *)my_malloc();
+
+  if (p4 == p2) {
+    printf("test superato\n");
+
+  } else {
+    printf("test fallito\n");
+  }
   return EXIT_SUCCESS;
 }
