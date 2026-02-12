@@ -1,8 +1,15 @@
 package com.pro.esercizi;
 
 public class rettangolo {
-  private double base;
-  private double altezza;
+  protected double base;
+  protected double altezza;
+  protected double area;
+  protected double perimetro;
+
+  public rettangolo(double base, double altezza) {
+    this.base = base;
+    this.altezza = altezza;
+  }
 
   public void setBase(Double base) {
     this.base = base;
@@ -15,12 +22,14 @@ public class rettangolo {
   public double calcolaArea(double base, double altezza) {
 
     double area = base * altezza;
+    this.area = area;
     return area;
+
   }
 
   public double calcolaPerimetro(double base, double altezza) {
     double perimetro = 2 * (base + altezza);
-
+    this.perimetro = perimetro;
     return perimetro;
   }
 
@@ -40,8 +49,9 @@ public class rettangolo {
     }
   }
 
-  public void descriviRettangolo(double perimetro, double area, double base, double altezza) {
-    System.out.println(
-        "l'area e: " + area + " il perimetro e: " + perimetro + " la base e: " + base + " l'altezza e:" + altezza);
+  public String toString() {
+
+    return "l'area e: " + area + " il perimetro e: " + perimetro + " la base e: " + base + " l'altezza e:" + altezza;
+
   }
 }
