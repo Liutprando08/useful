@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 typedef struct {
-  void (*funcion)(void *);
+  void (*function)(void *);
   void *argument;
 } threadpool_task_t;
 
@@ -36,7 +36,7 @@ static void *threadpool_worker(void *threadpool) {
     pool->head = (pool->head + 1) % pool->queue_size;
     pool->count--;
     pthread_mutex_unlock(&(pool->lock));
-    (*(task.funcion))(task.argument);
+    (*(task.function))(task.argument);
   }
   return NULL;
 }
@@ -55,4 +55,19 @@ threadpool_t *threadpool_create(int thread_count, int queue_size) {
     pthread_create(&(pool->thread[i]), NULL, threadpool_worker, (void *)pool);
   }
   return pool;
+}
+
+int threadpool_add(threadpool_t *pool, void (*func)(void *), void *arg) {
+  pthread_mutex_lock(&(pool->lock));
+  if (pool->count == pool->queue_size) {
+    pthread_mutex_unlock(&(pool->lock));
+    return -1;
+  }
+  pool->queue[pool->tail].function = func;
+  pool->queue[pool->tail].argument = arg;
+  pool->tail = (pool->tail + 1) % pool->queue_size;
+  pool->count++;
+  pthread_cond_signal(&(pool->notify));
+  pthread_mutex_unlock(&(pool->lock));
+  return 0;
 }
