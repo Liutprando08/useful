@@ -71,3 +71,57 @@ int threadpool_add(threadpool_t *pool, void (*func)(void *), void *arg) {
   pthread_mutex_unlock(&(pool->lock));
   return 0;
 }
+
+int threadpool_destroy(threadpool_t *pool) {
+  if (pool == NULL) {
+    return -1;
+  }
+  pthread_mutex_lock(&(pool->lock));
+  if (pool->shutdown) {
+    pthread_mutex_unlock(&(pool->lock));
+    return -1;
+  }
+  pool->shutdown = 1;
+  pthread_cond_broadcast(&(pool->notify));
+  pthread_mutex_unlock(&(pool->lock));
+  for (int i = 0; i < pool->thread_count; i++) {
+    pthread_join(pool->thread[i], NULL);
+  }
+  free(pool->thread);
+  free(pool->queue);
+  pthread_mutex_destroy(&(pool->lock));
+  pthread_cond_destroy(&(pool->notify));
+  free(pool);
+  return 0;
+}
+
+void simula_lavoro_pesante(void *arg) {
+  int *num = (int *)arg;
+  printf("[Worker %lu] inizia task %d \n", pthread_self(), *num);
+
+  sleep(1);
+  printf("[worker %lu] finito task %d \n", pthread_self(), *num);
+  free(arg);
+}
+
+int main(int argc, char *argv[]) {
+  printf("crea 4 worker\n");
+
+  threadpool_t *pool = threadpool_create(4, 10);
+  printf("aggiungi 10 task \n");
+  for (int i = 0; i < 10; i++) {
+    int *arg = malloc(sizeof(int));
+    *arg = i;
+
+    if (threadpool_add(pool, simula_lavoro_pesante, arg) != 0) {
+      printf("Errore: coda piena epr il task %d\n", i);
+      free(arg);
+    }
+  }
+  printf("tutti i task sottomessi, il main thread attende 5 secondi \n");
+  sleep(5);
+  printf("Distruzione del pool e uscita \n");
+  threadpool_destroy(pool);
+  printf("fatto");
+  return EXIT_SUCCESS;
+}
