@@ -1,0 +1,18 @@
+[
+  {
+    "file": "src/memoryAllocator.c",
+    "arguments": [
+      "gcc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "src/memoryAllocator.c",
+      "-o",
+      "obj/src/memoryAllocator.o"
+    ],
+    "directory": "/home/etsume/useful/c/AstroStream",
+    "output": "obj/src/memoryAllocator.o"
+  }
+]

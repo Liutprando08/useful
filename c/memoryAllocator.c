@@ -15,7 +15,7 @@ uint8_t memory_pool[POOL_SIZE];
 void *free_list_head;
 pthread_mutex_t lock;
 
-void *pool_init(void *p) {
+void *pool_init() {
   pthread_mutex_lock(&lock);
   free_list_head = &memory_pool[0];
   for (int i = 0; i < POOL_BLOCKS - 1; i++) {
@@ -26,8 +26,10 @@ void *pool_init(void *p) {
   *(void **)&memory_pool[(POOL_BLOCKS - 1) * BLOCK_SIZE] = NULL;
   printf("indirizzo base; %p", (void *)memory_pool);
   pthread_mutex_unlock(&lock);
+
+  return NULL;
 }
-void *my_malloc(void *p) {
+void *my_malloc() {
   if (free_list_head == NULL) {
     printf("Out of memory\n");
 
@@ -63,7 +65,6 @@ int main(int argc, char *argv[]) {
   struct payload *p2 = (struct payload *)result;
 
   struct payload *p3 = (struct payload *)result;
-  my_malloc(p2);
   pthread_mutex_lock(&lock);
 
   if (p1)
