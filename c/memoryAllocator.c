@@ -63,6 +63,7 @@ int main(int argc, char *argv[]) {
   struct payload *p2 = (struct payload *)result;
 
   struct payload *p3 = (struct payload *)result;
+  my_malloc(p2);
   pthread_mutex_lock(&lock);
 
   if (p1)
