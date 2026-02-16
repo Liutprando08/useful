@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+typedef enum { UINT8_T = 1, UINT32_T } dataType;
 typedef struct {
   uint8_t id;
   uint32_t value;
