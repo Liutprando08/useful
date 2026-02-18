@@ -15,29 +15,17 @@ data *deserialize(uint8_t *buffer, size_t size) {
     if (tag == 0x01) {
       if (type == UINT8_T && i < size) {
         sensorData->id = buffer[i++];
-      } else if (type == UINT32_T && i + 4 <= size) {
-        i += 4;
       } else if (type == ARR && i + ARR <= size) {
         i += ARR;
       }
-    } else if (tag == 0x02) {
-      if (type == UINT8_T && i < size) {
-        i += 1;
-      } else if (type == UINT32_T && i + 4 <= size) {
-
-        memcpy(&sensorData->value, &buffer[i], 4);
-        sensorData->value = ntohl(sensorData->value);
-        i += 4;
-      } else if (type == ARR && i + ARR <= size) {
-        i += ARR;
-      }
-
     }
 
-    else if (tag == 0x03) {
+    else if (tag == 0x02) {
       if (type == ARR && i + ARR <= size) {
-        memcpy(&sensorData->index, &buffer[i], ARR);
+        memcpy(&sensorData->value, &buffer[i], ARR);
         i += ARR;
+      } else if (type == UINT8_T && i < size) {
+        i++;
       }
     }
   }
