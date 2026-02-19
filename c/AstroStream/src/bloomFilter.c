@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 static inline uint32_t rotl32(uint32_t x, int8_t r) {
   return (x << r) | (x >> (32 - r));
@@ -12,6 +13,7 @@ static inline uint32_t rotl32(uint32_t x, int8_t r) {
 bool check_bit(bloomFilter *bf, size_t n) {
   return (bf->bits[n / 8] & (1 << (n % 8))) != 0;
 }
+void set_bit(bloomFilter *bf, size_t n) { bf->bits[n / 8] |= (1 << (n % 8)); }
 uint32_t fnv1a(data *sd, size_t len) {
   uint8_t *temp = &sd->id;
   uint32_t hash = 0x811c9dc5;
@@ -65,4 +67,34 @@ uint32_t murmurhash(data *sd, size_t len, uint32_t seed) {
   h1 ^= h1 >> 16;
 
   return h1;
+}
+
+void bloom_add(bloomFilter *bf, data *sd) {
+  uint32_t h1 = murmurhash(sd, sizeof(sd->id), 0);
+  uint32_t h2 = fnv1a(sd, sizeof(sd->id));
+  for (uint8_t i = 0; i < NUM_HASHES; i++) {
+    uint32_t combinedHash = h1 + (i * h2);
+    size_t bit_pos = combinedHash % bf->size;
+    set_bit(bf, bit_pos);
+  }
+}
+
+bool bloom_check(bloomFilter *bf, data *sd) {
+  uint32_t h1 = murmurhash(sd, sizeof(sd->id), 0);
+  uint32_t h2 = fnv1a(sd, sizeof(sd->id));
+  for (uint8_t i = 0; i < NUM_HASHES; i++) {
+    uint32_t combinedHash = h1 + (i * h2);
+    size_t bit_pos = combinedHash % bf->size;
+    if (!check_bit(bf, bit_pos)) {
+      return false;
+    }
+  }
+  return true;
+}
+bloomFilter *create() {
+  bloomFilter *bf = (bloomFilter *)malloc(sizeof(bloomFilter));
+  uint8_t bytes_needed = (FILTER_SIZE_BITS + 7) / 8;
+  bf->bits = calloc(bytes_needed, sizeof(uint8_t));
+  bf->size = FILTER_SIZE_BITS;
+  return bf;
 }
