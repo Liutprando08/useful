@@ -1,4 +1,5 @@
 #include "memoryAllocator.h"
+#include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
 uint32_t memory_pool[POOL_SIZE];

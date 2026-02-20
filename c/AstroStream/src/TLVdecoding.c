@@ -1,12 +1,12 @@
 #include "TLVdecoding.h"
-#include "memoryAllocator.h"
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 data *deserialize(uint8_t *buffer, size_t size) {
-  data *sensorData = my_alloc();
+  data *sensorData = (data *)malloc(sizeof(data));
 
   size_t i = 0;
   while (i + 2 <= size) {
