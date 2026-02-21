@@ -10,5 +10,5 @@ typedef struct {
 } data;
 
 data *deserialize(uint8_t *buffer, size_t size);
-uint8_t *serialize(uint8_t id, uint32_t value, size_t begin);
+uint8_t *serialize(uint8_t id, uint32_t value, size_t *size);
 #endif // !TLVDECODING_H

@@ -14,7 +14,7 @@ Fixed_t fp_mul(Fixed_t a, Fixed_t b) {
 
 Fixed_t fp_div(Fixed_t num, Fixed_t den) {
   if (den == 0) {
-    return NULL;
+    return 0;
   }
   int64_t temp = ((int64_t)num << SHIFT_AMOUNT);
   return (Fixed_t)(temp / den);
@@ -24,7 +24,7 @@ void fp_print(Fixed_t n) {
   int32_t intero = FIXED_TO_INT(n);
   int32_t fraz_raw = n & 0xFFFF;
   int32_t fraz_dec = (fraz_raw * 10000) >> 16;
-  if (n < 0 && intero == 0) {
+  if (intero == 0) {
     printf("-0.%04d\n", fraz_dec);
   } else {
     printf("%d.%04d\n", intero, abs(fraz_dec));

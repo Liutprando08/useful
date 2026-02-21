@@ -24,6 +24,7 @@ data *deserialize(uint8_t *buffer, size_t size) {
       if (type == ARR && i + ARR <= size) {
         memcpy(&sensorData->value, &buffer[i], ARR);
         i += ARR;
+
       } else if (type == UINT8_T && i < size) {
         i++;
       }
@@ -32,14 +33,18 @@ data *deserialize(uint8_t *buffer, size_t size) {
   return sensorData;
 }
 
-uint8_t *serialize(uint8_t id, uint32_t value, size_t begin) {
-  uint8_t *buffer = (uint8_t *)malloc(id * value * sizeof(uint8_t));
+uint8_t *serialize(uint8_t id, uint32_t value, size_t *size) {
+  size_t total_size = 1 + 1 + 1 + 1 + 1 + ARR;
+  size_t begin = 0;
+  uint8_t *buffer = (uint8_t *)malloc(total_size);
   buffer[begin++] = 0x01;
   buffer[begin++] = UINT8_T;
   buffer[begin++] = id;
   buffer[begin++] = 0x02;
   buffer[begin++] = ARR;
-  memcpy(&buffer[begin], &value, ARR);
+  uint32_t net = htonl(value);
+  memcpy(&buffer[begin], &net, ARR);
   begin += ARR;
+  *size = begin;
   return buffer;
 }
