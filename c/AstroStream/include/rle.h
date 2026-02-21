@@ -4,5 +4,5 @@
 #include <stdint.h>
 
 uint32_t decompression(data *sensordata);
-
+data *compression(char *num);
 #endif // !RLE_H

@@ -1,6 +1,4 @@
 #include "TLVdecoding.h"
-#include <arpa/inet.h>
-#include <netinet/in.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -42,8 +40,7 @@ uint8_t *serialize(uint8_t id, uint32_t value, size_t *size) {
   buffer[begin++] = id;
   buffer[begin++] = 0x02;
   buffer[begin++] = ARR;
-  uint32_t net = htonl(value);
-  memcpy(&buffer[begin], &net, ARR);
+  memcpy(&buffer[begin], &value, ARR);
   begin += ARR;
   *size = begin;
   return buffer;
