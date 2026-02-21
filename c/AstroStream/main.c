@@ -14,11 +14,12 @@
 
 int main(int argc, char *argv[]) {
   printf("Test Programma\n");
-  size_t begin;
-  uint8_t *buffer = serialize((uint8_t)1, (uint32_t)8765342, &begin);
-  data *sensordata = deserialize(buffer, begin);
-  uint32_t val = decompression(sensordata);
-  printf("il valore e %" PRIu32 "\n", val);
+  data *sensordata = compression("567890");
+  size_t size;
+  uint8_t *arr = serialize(sensordata, &size);
+  data *sdata = deserialize(arr, size);
+  char *valore = decompression(sdata);
+  printf("%s", valore);
 
   return EXIT_SUCCESS;
 }

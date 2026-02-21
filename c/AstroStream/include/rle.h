@@ -3,6 +3,6 @@
 #include "TLVdecoding.h"
 #include <stdint.h>
 
-uint32_t decompression(data *sensordata);
+char *decompression(data *sensordata);
 data *compression(char *num);
 #endif // !RLE_H

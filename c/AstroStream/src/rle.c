@@ -4,18 +4,40 @@
 #include <stdlib.h>
 #include <string.h>
 
-uint32_t decompression(data *sensorData) {
-  uint32_t val = 0;
+char *decompression(data *sensorData) {
 
-  for (int i = 0; i + 1 < ARR;) {
+  // 1. Calcoliamo la lunghezza totale della stringa finale
+  // Dobbiamo sommare tutti i valori contenuti nell'array 'compress'
+  size_t total_length = 0;
+  size_t num_runs =
+      strlen(sensorData->value); // Quanti gruppi di caratteri abbiamo
 
-    uint8_t rep = sensorData->value[i++];
-    uint8_t valore = sensorData->value[i++];
-    for (int u = 0; u < rep; u++) {
-      val = (val * 10) + valore;
+  for (size_t i = 0; i < num_runs; i++) {
+    total_length += sensorData->compress[i];
+  }
+
+  // 2. Allocazione memoria per la stringa decompressa
+  // +1 per il terminatore di stringa '\0'
+  char *result = (char *)malloc(total_length + 1);
+  if (result == NULL)
+    return NULL;
+
+  // 3. Espansione dei dati
+  size_t current_pos = 0;
+  for (size_t i = 0; i < num_runs; i++) {
+    char character = sensorData->value[i];
+    uint8_t count = sensorData->compress[i];
+
+    // Scriviamo il carattere 'character' per 'count' volte
+    for (uint8_t j = 0; j < count; j++) {
+      result[current_pos++] = character;
     }
   }
-  return val;
+
+  // 4. Chiusura della stringa
+  result[current_pos] = '\0';
+
+  return result;
 }
 
 data *compression(char *num) {
@@ -36,6 +58,6 @@ data *compression(char *num) {
     i++;
   }
 
-  sdata->value[i] = '\n';
+  sdata->value[i] = '\0';
   return sdata;
 }
