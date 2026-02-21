@@ -31,3 +31,15 @@ data *deserialize(uint8_t *buffer, size_t size) {
   }
   return sensorData;
 }
+
+uint8_t *serialize(uint8_t id, uint32_t value, size_t begin) {
+  uint8_t *buffer = (uint8_t *)malloc(id * value * sizeof(uint8_t));
+  buffer[begin++] = 0x01;
+  buffer[begin++] = UINT8_T;
+  buffer[begin++] = id;
+  buffer[begin++] = 0x02;
+  buffer[begin++] = ARR;
+  memcpy(&buffer[begin], &value, ARR);
+  begin += ARR;
+  return buffer;
+}
