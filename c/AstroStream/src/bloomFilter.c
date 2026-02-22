@@ -1,6 +1,6 @@
 
 #include "bloomFilter.h"
-#include "TLVdecoding.h"
+#include "processdata.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -14,7 +14,7 @@ bool check_bit(bloomFilter *bf, size_t n) {
   return (bf->bits[n / 8] & (1 << (n % 8))) != 0;
 }
 void set_bit(bloomFilter *bf, size_t n) { bf->bits[n / 8] |= (1 << (n % 8)); }
-uint32_t fnv1a(data *sd, size_t len) {
+uint32_t fnv1a(processeddata *sd, size_t len) {
   uint8_t *temp = &sd->id;
   uint32_t hash = 0x811c9dc5;
   for (size_t i = 0; i < len; i++) {
@@ -24,7 +24,7 @@ uint32_t fnv1a(data *sd, size_t len) {
   return hash;
 }
 
-uint32_t murmurhash(data *sd, size_t len, uint32_t seed) {
+uint32_t murmurhash(processeddata *sd, size_t len, uint32_t seed) {
   int nblocks = len / 4;
   uint32_t h1 = seed;
   uint8_t *temp = (uint8_t *)&sd->id;
@@ -69,7 +69,7 @@ uint32_t murmurhash(data *sd, size_t len, uint32_t seed) {
   return h1;
 }
 
-void bloom_add(bloomFilter *bf, data *sd) {
+void bloom_add(bloomFilter *bf, processeddata *sd) {
   uint32_t h1 = murmurhash(sd, sizeof(sd->id), 0);
   uint32_t h2 = fnv1a(sd, sizeof(sd->id));
   for (uint8_t i = 0; i < NUM_HASHES; i++) {
@@ -79,7 +79,7 @@ void bloom_add(bloomFilter *bf, data *sd) {
   }
 }
 
-bool bloom_check(bloomFilter *bf, data *sd) {
+bool bloom_check(bloomFilter *bf, processeddata *sd) {
   uint32_t h1 = murmurhash(sd, sizeof(sd->id), 0);
   uint32_t h2 = fnv1a(sd, sizeof(sd->id));
   for (uint8_t i = 0; i < NUM_HASHES; i++) {
