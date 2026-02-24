@@ -6,7 +6,7 @@
 #define POOL_SIZE (BLOCK_SIZE * POOL_BLOCK)
 
 void pool_init();
-void *my_alloc();
+void *my_malloc();
 void my_free(void *ptr);
 
 #endif // !MEMORYALLOCATOR_H

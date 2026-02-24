@@ -16,6 +16,7 @@
 
 int main() {
   printf("Test Programma\n");
+
   data *sensordata = compression("555544466");
   size_t size;
   uint8_t *arr = serialize(sensordata, &size);
