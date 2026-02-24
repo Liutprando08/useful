@@ -3,7 +3,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #define containerof(ptr, type, member)                                         \
-  (ptr)(type *)(uint32_t)-offsetof(type, member)
+  ((type *)((char *)(ptr) - offsetof(type, member)))
+
 struct list_head {
 
   struct list_head *prev, *next;

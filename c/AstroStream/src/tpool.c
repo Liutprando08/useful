@@ -8,7 +8,7 @@ void *tpool_worker(void *tpool) {
     while ((pool->count == 0) && (!pool->shutdown)) {
       pthread_cond_wait(&(pool->notify), &(pool->lock));
     }
-    if (pool->shutdown) {
+    if (pool->shutdown && pool->count == 0) {
       pthread_mutex_unlock(&(pool->lock));
       pthread_exit(NULL);
     }
@@ -25,6 +25,7 @@ tpool_t *threadpool_create(int thread_count, int queue_size) {
   pool->thread_count = thread_count;
   pool->queue_size = queue_size;
   pool->head = pool->tail = pool->count = pool->shutdown = 0;
+  pool->thread = (pthread_t *)malloc(sizeof(pthread_t) * thread_count);
   pool->queue = (tpool_task_t *)malloc(sizeof(tpool_task_t) * queue_size);
   pthread_mutex_init(&(pool->lock), NULL);
   pthread_cond_init(&(pool->notify), NULL);

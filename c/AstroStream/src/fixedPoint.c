@@ -2,7 +2,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <sys/types.h>
 Fixed_t fp_add(Fixed_t a, Fixed_t b) { return a + b; }
 Fixed_t fp_sub(Fixed_t a, Fixed_t b) { return a - b; }
@@ -21,12 +20,12 @@ Fixed_t fp_div(Fixed_t num, Fixed_t den) {
 }
 
 void fp_print(Fixed_t n) {
-  int32_t intero = FIXED_TO_INT(n);
-  int32_t fraz_raw = n & 0xFFFF;
-  int32_t fraz_dec = (fraz_raw * 10000) >> 16;
+  Fixed_t intero = FIXED_TO_INT(n);
+  Fixed_t fraz_raw = n & 0xFFFF;
+  Fixed_t fraz_dec = (fraz_raw * 10000) >> 16;
   if (intero == 0) {
     printf("-0.%04d\n", fraz_dec);
   } else {
-    printf("%d.%04d\n", intero, abs(fraz_dec));
+    printf("%d.%04d\n", intero, (fraz_dec));
   }
 }

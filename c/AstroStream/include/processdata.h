@@ -2,11 +2,12 @@
 #define PROCESSDATA_H
 
 #include "TLVdecoding.h"
+#include "list.h"
 #include <stdint.h>
 typedef struct {
   uint8_t id;
   uint32_t value;
+  struct list_head nodo;
 } processeddata;
 processeddata *process(data *sdata, char *valore);
-
 #endif // !PROCESSDATA_H

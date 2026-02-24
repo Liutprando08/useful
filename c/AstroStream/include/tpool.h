@@ -19,5 +19,7 @@ typedef struct {
   int shutdown;
 
 } tpool_t;
-
+tpool_t *threadpool_create(int thread_count, int queue_size);
+int threadpool_Add(tpool_t *pool, void (*func)(void *), void *arg);
+int threadpool_destroy(tpool_t *pool);
 #endif // !TPOOL_H
