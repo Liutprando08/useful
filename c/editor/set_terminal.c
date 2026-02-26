@@ -1,16 +1,41 @@
+#include "set_terminal.h"
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
+void disableRawMode() { tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig); }
 
-int main(void) {
-  struct termios old_t, new_t;
-  tcgetattr(STDIN_FILENO, &old_t);
-  new_t = old_t;
+void rawMode() {
+
+  tcgetattr(STDIN_FILENO, &orig);
+  struct termios raw;
+  atexit(disableRawMode);
+  raw = orig;
+  raw.c_iflag &= ~(IXON | ICRNL | BRKINT | INPCK | ISTRIP);
+  raw.c_oflag &= ~(OPOST);
+  raw.c_cflag |= (CS8);
+  raw.c_lflag &= ~(ICANON | ECHO | ISIG | IEXTEN);
+  raw.c_cc[VMIN] = 0;
+  raw.c_cc[VTIME] = 1;
+  tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
+}
+
+int main(int argc, char *argv[]) {
+  void *buf;
+  rawMode();
   char c;
-
-  new_t.c_lflag &= ~(ICANON | ECHO);
-  tcsetattr(STDIN_FILENO, TCSANOW, &new_t);
-  while (read(STDIN_FILENO, &c, 1) == 1 && c != 'q')
-    ;
-
+  while (1) {
+    char c = '\0';
+    read(STDIN_FILENO, &c, 1);
+    if (iscntrl(c)) {
+      printf("%d\r\n", c);
+    } else {
+      printf("%d ('%c')\r\n", c, c);
+    }
+    if (c == 'q')
+      break;
+  }
   return 0;
+  return EXIT_SUCCESS;
 }
