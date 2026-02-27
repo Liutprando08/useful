@@ -1,5 +1,53 @@
 [
   {
+    "file": "src/bloomFilter.c",
+    "arguments": [
+      "gcc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "src/bloomFilter.c",
+      "-o",
+      "obj/src/bloomFilter.o"
+    ],
+    "directory": "/home/etsume/useful/c/AstroStream",
+    "output": "obj/src/bloomFilter.o"
+  },
+  {
+    "file": "src/fixedPoint.c",
+    "arguments": [
+      "gcc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "src/fixedPoint.c",
+      "-o",
+      "obj/src/fixedPoint.o"
+    ],
+    "directory": "/home/etsume/useful/c/AstroStream",
+    "output": "obj/src/fixedPoint.o"
+  },
+  {
+    "file": "src/list.c",
+    "arguments": [
+      "gcc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "src/list.c",
+      "-o",
+      "obj/src/list.o"
+    ],
+    "directory": "/home/etsume/useful/c/AstroStream",
+    "output": "obj/src/list.o"
+  },
+  {
     "file": "src/memoryAllocator.c",
     "arguments": [
       "gcc",
@@ -14,5 +62,85 @@
     ],
     "directory": "/home/etsume/useful/c/AstroStream",
     "output": "obj/src/memoryAllocator.o"
+  },
+  {
+    "file": "src/processdata.c",
+    "arguments": [
+      "gcc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "src/processdata.c",
+      "-o",
+      "obj/src/processdata.o"
+    ],
+    "directory": "/home/etsume/useful/c/AstroStream",
+    "output": "obj/src/processdata.o"
+  },
+  {
+    "file": "src/rle.c",
+    "arguments": [
+      "gcc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "src/rle.c",
+      "-o",
+      "obj/src/rle.o"
+    ],
+    "directory": "/home/etsume/useful/c/AstroStream",
+    "output": "obj/src/rle.o"
+  },
+  {
+    "file": "src/TLVdecoding.c",
+    "arguments": [
+      "gcc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "src/TLVdecoding.c",
+      "-o",
+      "obj/src/TLVdecoding.o"
+    ],
+    "directory": "/home/etsume/useful/c/AstroStream",
+    "output": "obj/src/TLVdecoding.o"
+  },
+  {
+    "file": "src/tpool.c",
+    "arguments": [
+      "gcc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "src/tpool.c",
+      "-o",
+      "obj/src/tpool.o"
+    ],
+    "directory": "/home/etsume/useful/c/AstroStream",
+    "output": "obj/src/tpool.o"
+  },
+  {
+    "file": "main.c",
+    "arguments": [
+      "gcc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "main.c",
+      "-o",
+      "obj/main.o"
+    ],
+    "directory": "/home/etsume/useful/c/AstroStream",
+    "output": "obj/main.o"
   }
 ]

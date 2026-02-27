@@ -1,0 +1,50 @@
+[
+  {
+    "file": "src/editorGraphic.c",
+    "arguments": [
+      "gcc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "src/editorGraphic.c",
+      "-o",
+      "obj/src/editorGraphic.o"
+    ],
+    "directory": "/home/etsume/useful/c/editor",
+    "output": "obj/src/editorGraphic.o"
+  },
+  {
+    "file": "src/raw.c",
+    "arguments": [
+      "gcc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "src/raw.c",
+      "-o",
+      "obj/src/raw.o"
+    ],
+    "directory": "/home/etsume/useful/c/editor",
+    "output": "obj/src/raw.o"
+  },
+  {
+    "file": "main.c",
+    "arguments": [
+      "gcc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "main.c",
+      "-o",
+      "obj/main.o"
+    ],
+    "directory": "/home/etsume/useful/c/editor",
+    "output": "obj/main.o"
+  }
+]
