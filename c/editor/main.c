@@ -5,6 +5,7 @@
 int main() {
   rawMode();
   initEditor();
+  editorOpen();
   while (1) {
     editorRefreshScreen();
     editorProcessKeypress();
