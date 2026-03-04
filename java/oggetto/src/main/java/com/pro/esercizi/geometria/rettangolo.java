@@ -1,6 +1,8 @@
 package com.pro.esercizi.geometria;
 
-public class rettangolo {
+import com.pro.esercizi.interfaces.comparebile;
+
+public class rettangolo implements comparebile {
   protected double base;
   protected double altezza;
   protected double area;
@@ -47,6 +49,17 @@ public class rettangolo {
     } else {
       return false;
     }
+  }
+
+  @Override
+  public int compareArea(comparebile altrafigura) {
+    if (area < altrafigura) {
+      return -1;
+    }
+    if (area > altrafigura) {
+      return 1;
+    }
+    return 0;
   }
 
   public String toString() {

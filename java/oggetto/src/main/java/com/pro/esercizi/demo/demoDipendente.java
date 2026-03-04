@@ -3,7 +3,6 @@ package com.pro.esercizi.demo;
 import com.pro.esercizi.dipendente.impiegato;
 import com.pro.esercizi.dipendente.tecnico;
 import com.pro.esercizi.dipendente.UfficioPersonale;
-
 public class demoDipendente {
 
   public static void main(String[] args) {

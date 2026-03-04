@@ -1,31 +1,114 @@
 # Useful
 
-Benvenuto nella repository **Useful**. Questa è una collezione personale di script, esercizi, simulazioni di reti e frammenti di codice creati per lo studio, la pratica e la risoluzione di vari problemi di programmazione. 
+**Useful** is a personal collection of scripts, exercises, network simulations, and code snippets created for study, practice, and solving various programming problems.
 
-## Struttura della Repository
+## Repository Structure
 
-La repository è organizzata in diverse cartelle, ciascuna dedicata a uno specifico linguaggio di programmazione o a un particolare strumento di studio:
+The repository is organized into several directories, each dedicated to a specific programming language or study tool:
 
-* **`c/`**: Contiene progetti, esercizi e script sviluppati in linguaggio C.
-* **`codice da studiare/`**: Una raccolta di frammenti di codice, appunti e algoritmi utili per l'apprendimento e il ripasso generale.
-* **`java/`**: Esercizi e applicazioni in Java, organizzati con una struttura a pacchetti (es. `com.pro.esercizi`).
-* **`packettracer/`**: File di simulazione e laboratori di reti realizzati utilizzando Cisco Packet Tracer.
-* **`python/`**: Script, automazioni e programmi scritti in Python.
-* **`rust/`**: Progetti, esperimenti e codice per imparare e testare il linguaggio Rust.
+- **`c/`**: Projects, exercises, and scripts developed in C.
+- **`codice da studiare/`**: A collection of code snippets, notes, and algorithms useful for learning and general review.
+- **`java/`**: Java exercises and applications, organized with a package structure (e.g., `com.pro.esercizi`).
+- **`packettracer/`**: Simulation files and network labs created using Cisco Packet Tracer.
+- **`python/`**: Scripts, automations, and programs written in Python.
+- **`rust/`**: Projects, experiments, and code for learning and testing the Rust language.
 
-## Linguaggi e Tecnologie Utilizzate
+## Projects Overview
 
-All'interno di questo progetto troverai codice scritto principalmente nei seguenti linguaggi:
+### C Projects (`c/`)
 
-* C
-* Java
-* Python
-* Rust
-* Makefile (per la compilazione dei progetti in C)
+The C directory contains multiple subdirectories with focused projects:
 
-## Come utilizzare questa repository
+- **`AstroStream`**: A streaming data processing application featuring:
+  - Custom memory allocator implementation
+  - Bloom filter for efficient data deduplication
+  - Fixed-point arithmetic utilities
+  - Linked list data structure
+  - TLV (Type-Length-Value) decoding
+  - RLE (Run-Length Encoding) compression
+  - Thread pool implementation for concurrent processing
 
-Se desideri scaricare il codice sul tuo computer per studiarlo o testarlo, puoi clonare l'intera repository tramite Git:
+- **`editor`**: A terminal-based text editor with:
+  - Terminal settings management
+  - Raw mode input handling
+  - Graphic rendering for the editor interface
+
+- **`allocator`**: Custom memory allocator implementation demonstrating low-level memory management concepts
+
+- **`pthread`**: Multi-threaded programming examples including:
+  - Background thread sorting
+  - Custom pthread-based allocator
+
+- **`compression`**: RLE compression algorithm implementation
+
+- **`encoding`**: TLV encoding implementation for structured data serialization
+
+- **`filter`**: Data filtering algorithms including bloom filter and binary search
+
+- **`library`**: Utility functions (dice rolling, number mirroring)
+
+- **`liste`**: Linked list implementations (Linux-style and standard)
+
+- **`math`**: Mathematical utilities (fixed-point arithmetic, prime sieve, string length)
+
+- **`pointers`**: Pointer exercises demonstrating dynamic memory and pointer arithmetic
+
+- **`sort`**: Sorting algorithm implementations (QuickSort, InsertionSort)
+
+- **`bitwise`**: Bitwise operator demonstrations (AND, complement, left shift, odd/even checks)
+
+- **`struct`**: C struct usage examples
+
+### Java Projects (`java/`)
+
+- **`oggetto/`**: Object-oriented programming exercises demonstrating class design and object creation
+
+### Python Projects (`python/`)
+
+- **`opencv_adaptive_threshold.py`**: Image processing script using adaptive thresholding
+- **`opencv_threshold_binary.py`**: Binary thresholding implementation with OpenCV
+- **`calcolatrice/`**: Calculator application
+- **`guessing_game/`**: Number guessing game
+
+### Rust Projects (`rust/`)
+
+Projects for learning and experimenting with the Rust programming language, focusing on memory safety and systems programming concepts.
+
+### Network Simulations (`packettracer/`)
+
+- **`classful.pkt`**: Cisco Packet Tracer simulation demonstrating classful IP addressing and network fundamentals
+
+### Study Materials (`codice da studiare/`)
+
+- **`linux-0.01/`**: Linux kernel source code (version 0.01) for studying operating system fundamentals
+
+## Languages and Technologies
+
+This repository contains code written primarily in the following languages:
+
+- C
+- Java
+- Python
+- Rust
+- Makefile (for compiling C projects)
+
+## Getting Started
+
+To download the code to your computer for study or testing, clone the repository using Git:
 
 ```bash
-git clone [https://github.com/Liutprando08/useful.git](https://github.com/Liutprando08/useful.git)
+git clone https://github.com/Liutprando08/useful.git
+```
+
+## Building C Projects
+
+Most C projects use Makefile for compilation:
+
+```bash
+cd c/AstroStream
+make
+```
+
+## License
+
+This project is for personal educational purposes.
