@@ -12,6 +12,12 @@ void editorScroll() {
   if (E.cy >= E.rowoff + E.screenRows) {
     E.rowoff = E.cy - E.screenRows + 1;
   }
+  if (E.cx < E.coloff) {
+    E.coloff = E.cx;
+  }
+  if (E.cx >= E.screenCols) {
+    E.coloff = E.cx - E.screenCols + 1;
+  }
 }
 void editorAppendRow(char *s, size_t len) {
   E.row = realloc(E.row, sizeof(erow) * (E.numrows + 1));
