@@ -20,7 +20,7 @@ void editorMoveCursor(char key) {
     break;
 
   case ARROW_DOWN:
-    if (E.cy != E.screenRows - 1) {
+    if (E.cy < E.screenRows - 1) {
 
       E.cy++;
     }
@@ -77,22 +77,29 @@ int getWindowsize(int *rows, int *cols) {
 void editorDrawRows(struct abuf *ab) {
   int y;
   for (y = 0; y < E.screenRows; y++) {
-    if (y == E.screenRows / 3) {
-      char welcome[80];
-      int welcomelen = snprintf(welcome, sizeof(welcome),
-                                "Kilo editor -- version %s", EDITOR_VERSION);
-      if (welcomelen > E.screenCols)
-        welcomelen = E.screenCols;
-      int padding = (E.screenCols - welcomelen) / 2;
-      if (padding) {
+    int filerow = y + E.rowoff;
+    if (filerow >= E.numrows) {
+      if (E.numrows == 0 && y == E.screenRows / 3) {
+        char welcome[80];
+        int welcomelen = snprintf(welcome, sizeof(welcome),
+                                  "Kilo editor -- version %s", EDITOR_VERSION);
+        if (welcomelen > E.screenCols)
+          welcomelen = E.screenCols;
+        int padding = (E.screenCols - welcomelen) / 2;
+        if (padding) {
+          abAppend(ab, "~", 1);
+          padding--;
+        }
+        while (padding--)
+          abAppend(ab, " ", 1);
+        abAppend(ab, welcome, welcomelen);
+      } else {
         abAppend(ab, "~", 1);
-        padding--;
       }
-      while (padding--)
-        abAppend(ab, " ", 1);
-      abAppend(ab, welcome, welcomelen);
     } else {
-      abAppend(ab, "~", 1);
+      int len = E.row[filerow].size;
+      if (len > E.screenCols)
+        abAppend(ab, E.row[filerow].chars, len);
     }
     abAppend(ab, "\x1b[K", 3);
     if (y < E.screenRows - 1) {
@@ -101,12 +108,14 @@ void editorDrawRows(struct abuf *ab) {
   }
 }
 void editorRefreshScreen() {
+  editorScroll();
   struct abuf ab = ABUF_INIT;
   abAppend(&ab, "\x1b[H", 3);
   abAppend(&ab, "\x1b[?25l", 6);
   editorDrawRows(&ab);
   char buf[32];
-  snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy + 1, E.cx + 1);
+
+  snprintf(buf, sizeof(buf), "\x1b[%d;%dH", (E.cy - E.rowoff) + 1, E.cx + 1);
   abAppend(&ab, buf, strlen(buf));
   abAppend(&ab, "\x1b[?25h", 6);
   write(STDOUT_FILENO, ab.buf, ab.len);
@@ -245,7 +254,9 @@ void editorProcessKeypress() {
 void initEditor() {
   E.cx = 0;
   E.cy = 0;
+  E.rowoff = 0;
   E.numrows = 0;
+  E.row = NULL;
   E.mode = NORMAL_MODE;
   if (getWindowsize(&E.screenRows, &E.screenCols) == -1)
     die("getWindowsize");

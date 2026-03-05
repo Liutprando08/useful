@@ -1,21 +1,29 @@
 #ifndef SET_TERMINAL_H
 #define SET_TERMINAL_H
-#include <termios.h>
+
+#define _DEFAULT_SOURCE
+#define _BSD_SOURCE
+#define _GNU_SOURCE
 #define CTRL_KEY(x) ((x) & 0x1f)
 #define ABUF_INIT {NULL, 0}
 #define EDITOR_VERSION "0.0.1"
+
+#include <stddef.h>
+#include <termios.h>
+
 typedef struct erow {
   int size;
   char *chars;
-
 } erow;
 struct editorConfig {
   int cx, cy;
+  int rowoff;
   int screenRows;
   int screenCols;
   struct termios orig;
+
   int numrows;
-  erow row;
+  erow *row;
   int mode;
 };
 struct abuf {
@@ -44,6 +52,7 @@ char editorReadKey();
 void editorProcessKeypress();
 int getWindowsize(int *rows, int *cols);
 void initEditor();
-void editorOpen();
-
-#endif // !SET_TERMINAL_H
+void editorOpen(char *filename);
+void editorAppendRow(char *s, size_t len);
+void editorScroll();
+#endif

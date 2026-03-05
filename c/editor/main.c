@@ -2,10 +2,13 @@
 #include <termios.h>
 #include <unistd.h>
 
-int main() {
+int main(int argc, char *argv[]) {
   rawMode();
   initEditor();
-  editorOpen();
+  if (argc >= 2) {
+
+    editorOpen(argv[1]);
+  }
   while (1) {
     editorRefreshScreen();
     editorProcessKeypress();
