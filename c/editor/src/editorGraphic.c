@@ -15,7 +15,7 @@ void editorMoveCursor(char key) {
     } else if (E.cx == 0) {
       if (E.cy > 0) {
         E.cy--;
-        E.cx = E.row[E.cy].size;
+        E.cx = E.row[E.cy].rsize;
       }
     }
     break;
@@ -23,7 +23,7 @@ void editorMoveCursor(char key) {
     if (row && E.cx < row->rsize) {
 
       E.cx++;
-    } else if (row && E.cx == row->size) {
+    } else if (row && E.cx == row->rsize) {
       E.cy++;
       E.cx = 0;
     }
@@ -42,7 +42,7 @@ void editorMoveCursor(char key) {
     break;
   }
   row = (E.cy >= E.numrows) ? NULL : &E.row[E.cy];
-  int rowlen = row ? row->size : 0;
+  int rowlen = row ? row->rsize : 0;
   if (E.cx > rowlen) {
     E.cx = rowlen;
   }
