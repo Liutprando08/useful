@@ -7,16 +7,20 @@
 #define CTRL_KEY(x) ((x) & 0x1f)
 #define ABUF_INIT {NULL, 0}
 #define EDITOR_VERSION "0.0.1"
+#define KILO_TAB_STOP 8
 
 #include <stddef.h>
 #include <termios.h>
 
 typedef struct erow {
   int size;
+  int rsize;
   char *chars;
+  char *render;
 } erow;
 struct editorConfig {
   int cx, cy;
+  int rx;
   int rowoff;
   int screenRows;
   int screenCols;
@@ -55,4 +59,5 @@ void initEditor();
 void editorOpen(char *filename);
 void editorAppendRow(char *s, size_t len);
 void editorScroll();
+void editorUpdateRow(erow *row);
 #endif

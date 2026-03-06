@@ -18,6 +18,7 @@ void disableRawMode() {
   write(STDOUT_FILENO, "\x0f", 1);
   write(STDOUT_FILENO, "\x1b[2J", 4);
   write(STDOUT_FILENO, "\x1b[H", 3);
+  write(STDOUT_FILENO, "\x1b[?1l", 5);
   if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &E.orig) == -1)
     die("tcsetattr");
 }
