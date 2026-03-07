@@ -11,6 +11,7 @@
 
 #include <stddef.h>
 #include <termios.h>
+#include <time.h>
 
 typedef struct erow {
   int size;
@@ -27,6 +28,9 @@ struct editorConfig {
   struct termios orig;
   int coloff;
   int numrows;
+  char *filename;
+  char statusmsg[80];
+  time_t statusmsg_time;
   erow *row;
   int mode;
 };
@@ -60,4 +64,9 @@ void editorOpen(char *filename);
 void editorAppendRow(char *s, size_t len);
 void editorScroll();
 void editorUpdateRow(erow *row);
+void abAppend(struct abuf *ab, const char *s, int len);
+void abFree(struct abuf *ab);
+void editorDrawStatusBar(struct abuf *ab);
+void editorSetStatusMessage(const char *fmt, ...);
+void editorDrawMessageBar(struct abuf *ab);
 #endif

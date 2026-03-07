@@ -1,5 +1,21 @@
 [
   {
+    "file": "src/draw.c",
+    "arguments": [
+      "gcc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "src/draw.c",
+      "-o",
+      "obj/src/draw.o"
+    ],
+    "directory": "/home/etsume/useful/c/editor",
+    "output": "obj/src/draw.o"
+  },
+  {
     "file": "src/editorGraphic.c",
     "arguments": [
       "gcc",
@@ -32,7 +48,7 @@
     "output": "obj/src/raw.o"
   },
   {
-    "file": "main.c",
+    "file": "src/viewer.c",
     "arguments": [
       "gcc",
       "-Wall",
@@ -40,11 +56,11 @@
       "-g",
       "-Iinclude",
       "-c",
-      "main.c",
+      "src/viewer.c",
       "-o",
-      "obj/main.o"
+      "obj/src/viewer.o"
     ],
     "directory": "/home/etsume/useful/c/editor",
-    "output": "obj/main.o"
+    "output": "obj/src/viewer.o"
   }
 ]

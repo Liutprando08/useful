@@ -15,15 +15,15 @@ void editorMoveCursor(char key) {
     } else if (E.cx == 0) {
       if (E.cy > 0) {
         E.cy--;
-        E.cx = E.row[E.cy].rsize;
+        E.cx = E.row[E.cy].size;
       }
     }
     break;
   case ARROW_RIGHT:
-    if (row && E.cx < row->rsize) {
+    if (row && E.cx < row->size) {
 
       E.cx++;
-    } else if (row && E.cx == row->rsize) {
+    } else if (row && E.cx == row->size) {
       E.cy++;
       E.cx = 0;
     }
@@ -88,48 +88,14 @@ int getWindowsize(int *rows, int *cols) {
     return 0;
   }
 }
-void editorDrawRows(struct abuf *ab) {
-  int y;
-  for (y = 0; y < E.screenRows; y++) {
-    int filerow = y + E.rowoff;
-    if (filerow >= E.numrows) {
-      if (E.numrows == 0 && y == E.screenRows / 3) {
-        char welcome[80];
-        int welcomelen = snprintf(welcome, sizeof(welcome),
-                                  "Kilo editor -- version %s", EDITOR_VERSION);
-        if (welcomelen > E.screenCols)
-          welcomelen = E.screenCols;
-        int padding = (E.screenCols - welcomelen) / 2;
-        if (padding) {
-          abAppend(ab, "~", 1);
-          padding--;
-        }
-        while (padding--)
-          abAppend(ab, " ", 1);
-        abAppend(ab, welcome, welcomelen);
-      } else {
-        abAppend(ab, "~", 1);
-      }
-    } else {
-      int len = E.row[filerow].rsize - E.coloff;
-      if (len < 0)
-        len = 0;
-      if (len > E.screenCols)
-        len = E.screenCols;
-      abAppend(ab, &E.row[filerow].render[E.coloff], len);
-    }
-    abAppend(ab, "\x1b[K", 3);
-    if (y < E.screenRows - 1) {
-      abAppend(ab, "\r\n", 2);
-    }
-  }
-}
 void editorRefreshScreen() {
   editorScroll();
   struct abuf ab = ABUF_INIT;
   abAppend(&ab, "\x1b[H", 3);
   abAppend(&ab, "\x1b[?25l", 6);
   editorDrawRows(&ab);
+  editorDrawStatusBar(&ab);
+  editorDrawMessageBar(&ab);
   char buf[32];
 
   snprintf(buf, sizeof(buf), "\x1b[%d;%dH", (E.cy - E.rowoff) + 1,
@@ -218,15 +184,25 @@ void editorProcessKeypress() {
       E.cx = 0;
       break;
     case END_KEY:
-      E.cx = E.screenCols - 1;
+      if (E.cy < E.numrows)
+        E.cx = E.row[E.cy].size;
       break;
     case PAGE_UP:
     case PAGE_DOWN: {
-      int times = E.screenRows;
-      while (times--) {
-        editorMoveCursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
+      if (c == PAGE_UP) {
+        E.cy = E.rowoff;
+      } else if (c == PAGE_DOWN) {
+        E.cy = E.rowoff + E.screenRows - 1;
+        if (E.cy > E.numrows)
+          E.cy = E.numrows;
       }
-    } break;
+
+      int times = E.screenRows;
+      while (times--)
+        editorMoveCursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
+    }
+
+    break;
     case ARROW_LEFT:
     case ARROW_DOWN:
     case ARROW_UP:
@@ -278,6 +254,10 @@ void initEditor() {
   E.coloff = 0;
   E.row = NULL;
   E.mode = NORMAL_MODE;
+  E.filename = NULL;
+  E.statusmsg[0] = '\0';
+  E.statusmsg_time = 0;
   if (getWindowsize(&E.screenRows, &E.screenCols) == -1)
     die("getWindowsize");
+  E.screenRows -= 2;
 }

@@ -3,6 +3,7 @@ package com.pro.esercizi.dipendente;
 public class tecnico extends dipendente {
 
   private int interventi;
+
   private boolean reperibili;
 
   public tecnico(String nome, int matricola, double pagaBase, int interventi, boolean reperibili) {
