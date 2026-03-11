@@ -170,11 +170,19 @@ char editorReadKey() {
   }
 }
 void editorProcessKeypress() {
+  static int quit_times = KILO_QUIT_TIMES;
   char c = editorReadKey();
   if (E.mode == NORMAL_MODE) {
 
     switch (c) {
     case CTRL_KEY('q'):
+      if (E.dirty && quit_times > 0) {
+        editorSetStatusMessage("WARNING!!! File has unsaved changes. "
+                               "Press Ctrl-Q %d more times to quit.",
+                               quit_times);
+        quit_times--;
+        return;
+      }
       write(STDOUT_FILENO, "\x1b[?25h", 6);
       write(STDOUT_FILENO, "\x1b[2J", 4);
       write(STDOUT_FILENO, "\x1b[H", 3);
@@ -228,6 +236,11 @@ void editorProcessKeypress() {
       E.cx++;
       E.mode = INSERT_MODE;
       break;
+    case CTRL_KEY('l'):
+      break;
+    case CTRL_KEY('s'):
+      editorSave();
+      break;
     default:
       if (c >= 32 && c <= 126) {
         E.cx++;
@@ -235,15 +248,27 @@ void editorProcessKeypress() {
     }
   } else if (INSERT_MODE == E.mode) {
     switch (c) {
+    case '\r':
+      /*TODO*/
+      break;
     case '\x1b':
       E.mode = NORMAL_MODE;
       break;
+    case BACKSPACE:
+    case CTRL_KEY('h'):
+    case DEL_KEY:
+      break;
+    case CTRL_KEY('l'):
+      break;
+    case CTRL_KEY('s'):
+      editorSave();
+      break;
     default:
-      if (c >= 32 && c <= 126) {
-        E.cx++;
-      }
+      editorInsertChar(c);
+      break;
     }
   }
+  quit_times = KILO_QUIT_TIMES;
 }
 void initEditor() {
   E.cx = 0;
@@ -255,6 +280,7 @@ void initEditor() {
   E.row = NULL;
   E.mode = NORMAL_MODE;
   E.filename = NULL;
+  E.dirty = 0;
   E.statusmsg[0] = '\0';
   E.statusmsg_time = 0;
   if (getWindowsize(&E.screenRows, &E.screenCols) == -1)

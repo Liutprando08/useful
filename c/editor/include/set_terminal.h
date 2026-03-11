@@ -8,6 +8,7 @@
 #define ABUF_INIT {NULL, 0}
 #define EDITOR_VERSION "0.0.1"
 #define KILO_TAB_STOP 8
+#define KILO_QUIT_TIMES 3
 
 #include <stddef.h>
 #include <termios.h>
@@ -28,6 +29,7 @@ struct editorConfig {
   struct termios orig;
   int coloff;
   int numrows;
+  int dirty;
   char *filename;
   char statusmsg[80];
   time_t statusmsg_time;
@@ -40,6 +42,7 @@ struct abuf {
 };
 enum modes { NORMAL_MODE, INSERT_MODE };
 enum editorKey {
+  BACKSPACE = 127,
   ARROW_LEFT = -24,
   ARROW_DOWN,
   ARROW_UP,
@@ -69,4 +72,8 @@ void abFree(struct abuf *ab);
 void editorDrawStatusBar(struct abuf *ab);
 void editorSetStatusMessage(const char *fmt, ...);
 void editorDrawMessageBar(struct abuf *ab);
+void editorRowInsertChar(erow *row, int at, int c);
+char *editorRowsToString(int *buflen);
+void editorInsertChar(int c);
+void editorSave();
 #endif

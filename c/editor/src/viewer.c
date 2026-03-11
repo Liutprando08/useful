@@ -66,6 +66,7 @@ void editorAppendRow(char *s, size_t len) {
   E.row[at].render = NULL;
   editorUpdateRow(&E.row[at]);
   E.numrows++;
+  E.dirty++;
 }
 void editorOpen(char *filename) {
   free(E.filename);
@@ -83,6 +84,8 @@ void editorOpen(char *filename) {
       linelen--;
     editorAppendRow(line, linelen);
   }
+
   free(line);
   fclose(fp);
+  E.dirty = 0;
 }

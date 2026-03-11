@@ -27,7 +27,7 @@ void editorDrawRows(struct abuf *ab) {
         abAppend(ab, "~", 1);
       }
     } else {
-      int len = E.row[filerow].size - E.coloff;
+      int len = E.row[filerow].rsize - E.coloff;
       if (len < 0)
         len = 0;
       if (len > E.screenCols)
@@ -49,14 +49,16 @@ void editorDrawStatusBar(struct abuf *ab) {
     modlen = snprintf(modestr, sizeof(modestr), "INSERT");
   }
 
-  int len = snprintf(status, sizeof(status), "%.20s",
-                     E.filename ? E.filename : "[No Name]");
-  int rlen = snprintf(rstatus, sizeof(rstatus), "%d/%d", E.cy + 1, E.numrows);
+  int len = snprintf(status, sizeof(status), "%.20s, %s",
+                     E.filename ? E.filename : "[No Name]",
+                     E.dirty ? "(modified)" : "");
+  int rlen =
+      snprintf(rstatus, sizeof(rstatus), "%d/%d", E.cy + 1, E.numrows + 1);
   if (len > E.screenCols)
     len = E.screenCols;
   abAppend(ab, status, len);
   while (len < E.screenCols) {
-    if (E.screenCols - len - modlen == rlen) {
+    if (E.screenCols - len - modlen + 1 == rlen) {
       abAppend(ab, rstatus, rlen);
       break;
     } else if (E.screenCols / 2 - len == modlen) {
