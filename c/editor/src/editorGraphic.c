@@ -249,7 +249,7 @@ void editorProcessKeypress() {
   } else if (INSERT_MODE == E.mode) {
     switch (c) {
     case '\r':
-      /*TODO*/
+      editorInsertNewline();
       break;
     case '\x1b':
       E.mode = NORMAL_MODE;
@@ -257,6 +257,9 @@ void editorProcessKeypress() {
     case BACKSPACE:
     case CTRL_KEY('h'):
     case DEL_KEY:
+      if (c == DEL_KEY)
+        editorMoveCursor(ARROW_RIGHT);
+      editorDelChar();
       break;
     case CTRL_KEY('l'):
       break;

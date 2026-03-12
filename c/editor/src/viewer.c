@@ -55,9 +55,11 @@ void editorScroll() {
     E.coloff = E.rx - E.screenCols + 1;
   }
 }
-void editorAppendRow(char *s, size_t len) {
+void editorAppendRow(int at, char *s, size_t len) {
+  if (at < 0 || at > E.numrows)
+    return;
   E.row = realloc(E.row, sizeof(erow) * (E.numrows + 1));
-  int at = E.numrows;
+  memmove(&E.row[at + 1], &E.row[at], sizeof(erow) * (E.numrows - at));
   E.row[at].size = len;
   E.row[at].chars = malloc(len + 1);
   memcpy(E.row[at].chars, s, len);
@@ -66,6 +68,18 @@ void editorAppendRow(char *s, size_t len) {
   E.row[at].render = NULL;
   editorUpdateRow(&E.row[at]);
   E.numrows++;
+  E.dirty++;
+}
+void editorFreeRow(erow *row) {
+  free(row->render);
+  free(row->chars);
+}
+void editorRowAppendString(erow *row, char *s, size_t len) {
+  row->chars = realloc(row->chars, row->size + len + 1);
+  memcpy(&row->chars[row->size], s, len);
+  row->size += len;
+  row->chars[row->size] = '\0';
+  editorUpdateRow(row);
   E.dirty++;
 }
 void editorOpen(char *filename) {
@@ -82,7 +96,7 @@ void editorOpen(char *filename) {
     while (linelen > 0 &&
            (line[linelen - 1] == '\n' || line[linelen - 1] == '\r'))
       linelen--;
-    editorAppendRow(line, linelen);
+    editorAppendRow(E.numrows, line, linelen);
   }
 
   free(line);
