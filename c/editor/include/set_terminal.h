@@ -28,6 +28,11 @@ struct editorConfig {
   char statusmsg[80];
   time_t statusmsg_time;
   int mode;
+  int *line_offsets;
+  int line_offsets_capacity;
+  char **row_cache;
+  int *row_cache_rsize;
+  int row_cache_valid;
 };
 struct abuf {
   char *buf;
