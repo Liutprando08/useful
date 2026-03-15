@@ -85,9 +85,15 @@ void editorRowAppendString(erow *row, char *s, size_t len) {
 void editorOpen(char *filename) {
   free(E.filename);
   E.filename = strdup(filename);
-  FILE *fp = fopen(filename, "r");
+  FILE *fp = fopen(filename, "rb");
   if (!fp)
     die("fopen");
+  fseek(fp, 0, SEEK_END);
+  T.original_length = ftell(fp);
+  fseek(fp, 0, SEEK_SET);
+  T.original_buffer = malloc(++T.original_length);
+  fread(T.original_buffer, 1, T.original_length - 1, fp);
+  T.original_buffer[T.original_length] = '\0';
 
   char *line = NULL;
   size_t linecap = 0;

@@ -274,6 +274,7 @@ void editorProcessKeypress() {
   quit_times = KILO_QUIT_TIMES;
 }
 void initEditor() {
+  initPieceTable();
   E.cx = 0;
   E.cy = 0;
   E.rx = 0;

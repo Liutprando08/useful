@@ -40,7 +40,26 @@ struct abuf {
   char *buf;
   int len;
 };
+
 enum modes { NORMAL_MODE, INSERT_MODE };
+typedef enum { BUFFER_ORIGINAL, BAFFER_ADD } BufferType;
+typedef struct {
+  BufferType buffer;
+  int start;
+  int length;
+} piece;
+typedef struct {
+  char *original_buffer;
+  size_t original_length;
+
+  char *add_buffer;
+  int capacity;
+  int add_length;
+  piece *pieces;
+  int pieces_count;
+  int pieces_capacity;
+
+} pieceTable;
 enum editorKey {
   BACKSPACE = 127,
   ARROW_LEFT = -24,
@@ -54,6 +73,8 @@ enum editorKey {
   PAGE_DOWN
 };
 extern struct editorConfig E;
+
+extern pieceTable T;
 void die(const char *s);
 void disableRawMode();
 void rawMode();
@@ -83,4 +104,5 @@ void editorDelRow(int at);
 void editorRowAppendString(erow *row, char *s, size_t len);
 void editorInsertNewline();
 char *editorPrompt(char *prompt);
+void initPieceTable();
 #endif
