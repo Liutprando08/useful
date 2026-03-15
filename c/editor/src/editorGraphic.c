@@ -281,7 +281,6 @@ void initEditor() {
   E.rowoff = 0;
   E.numrows = 0;
   E.coloff = 0;
-  E.row = NULL;
   E.mode = NORMAL_MODE;
   E.filename = NULL;
   E.dirty = 0;

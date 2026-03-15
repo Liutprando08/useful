@@ -14,12 +14,6 @@
 #include <termios.h>
 #include <time.h>
 
-typedef struct erow {
-  int size;
-  int rsize;
-  char *chars;
-  char *render;
-} erow;
 struct editorConfig {
   int cx, cy;
   int rx;
@@ -33,7 +27,6 @@ struct editorConfig {
   char *filename;
   char statusmsg[80];
   time_t statusmsg_time;
-  erow *row;
   int mode;
 };
 struct abuf {
@@ -42,7 +35,7 @@ struct abuf {
 };
 
 enum modes { NORMAL_MODE, INSERT_MODE };
-typedef enum { BUFFER_ORIGINAL, BAFFER_ADD } BufferType;
+typedef enum { BUFFER_ORIGINAL, BUFFER_ADD } BufferType;
 typedef struct {
   BufferType buffer;
   int start;
@@ -51,7 +44,7 @@ typedef struct {
 typedef struct {
   char *original_buffer;
   size_t original_length;
-
+  int add_capacity;
   char *add_buffer;
   int capacity;
   int add_length;
@@ -85,8 +78,8 @@ void editorProcessKeypress();
 int getWindowsize(int *rows, int *cols);
 void initEditor();
 void editorOpen(char *filename);
-void editorAppendRow(int at, char *s, size_t len);
 void editorScroll();
+void piece_table_insert(char *c);
 void editorUpdateRow(erow *row);
 void abAppend(struct abuf *ab, const char *s, int len);
 void abFree(struct abuf *ab);

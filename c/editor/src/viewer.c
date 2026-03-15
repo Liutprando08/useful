@@ -55,25 +55,6 @@ void editorScroll() {
     E.coloff = E.rx - E.screenCols + 1;
   }
 }
-void editorAppendRow(int at, char *s, size_t len) {
-  if (at < 0 || at > E.numrows)
-    return;
-  E.row = realloc(E.row, sizeof(erow) * (E.numrows + 1));
-  memmove(&E.row[at + 1], &E.row[at], sizeof(erow) * (E.numrows - at));
-  E.row[at].size = len;
-  E.row[at].chars = malloc(len + 1);
-  memcpy(E.row[at].chars, s, len);
-  E.row[at].chars[len] = '\0';
-  E.row[at].rsize = 0;
-  E.row[at].render = NULL;
-  editorUpdateRow(&E.row[at]);
-  E.numrows++;
-  E.dirty++;
-}
-void editorFreeRow(erow *row) {
-  free(row->render);
-  free(row->chars);
-}
 void editorRowAppendString(erow *row, char *s, size_t len) {
   row->chars = realloc(row->chars, row->size + len + 1);
   memcpy(&row->chars[row->size], s, len);
@@ -82,6 +63,73 @@ void editorRowAppendString(erow *row, char *s, size_t len) {
   editorUpdateRow(row);
   E.dirty++;
 }
+void piece_table_insert(char *c) {
+  int total_length = 0;
+  int len = strlen(c);
+  for (int i = 0; i < T.pieces_count; i++) {
+    total_length += T.pieces[i].length;
+  }
+
+  if (E.cx > total_length)
+    E.cx = total_length;
+  if (T.add_length + len > T.add_capacity) {
+    T.add_capacity *= 2;
+    T.add_buffer = realloc(T.add_buffer, T.add_capacity);
+  }
+
+  int add_position = T.add_length;
+  memcpy(T.add_buffer + T.add_length, c, len);
+  T.add_length += len;
+  int current_pos = 0;
+  int piece_index = -1;
+  int offset = 0;
+  for (int i = 0; i < T.pieces_count; i++) {
+    int piece_end = current_pos + T.pieces[i].length;
+    if (E.cx <= piece_end) {
+      piece_index = i;
+      offset = E.cx - current_pos;
+      break;
+    }
+    current_pos = piece_end;
+  }
+  if (piece_index == -1) {
+    piece_index = T.pieces_count - 1;
+    offset = T.pieces[piece_index].length;
+  }
+  piece old_piece = T.pieces[piece_index];
+  int new_pieces_needed = (offset > 0 && offset < old_piece.length) ? 2 : 1;
+
+  if (T.pieces_count + new_pieces_needed > T.pieces_capacity) {
+    T.pieces_capacity *= 2;
+    T.pieces = realloc(T.pieces, sizeof(piece) * T.pieces_capacity);
+  }
+
+  for (int i = T.pieces_count; i > new_pieces_needed + piece_index; i--) {
+    T.pieces[i] = T.pieces[i - new_pieces_needed];
+  }
+  int new_index = piece_index;
+
+  if (offset > 0) {
+    T.pieces[new_index].buffer = old_piece.buffer;
+    T.pieces[new_index].start = old_piece.start;
+    T.pieces[new_index].length = offset;
+    new_index++;
+  }
+
+  T.pieces[new_index].buffer = BUFFER_ADD;
+  T.pieces[new_index].start = add_position;
+  T.pieces[new_index].length = len;
+  new_index++;
+
+  if (offset < old_piece.length) {
+    T.pieces[new_index].buffer = old_piece.buffer;
+    T.pieces[new_index].start = old_piece.start + offset;
+    T.pieces[new_index].length = old_piece.length - offset;
+  }
+
+  T.pieces_count += new_pieces_needed;
+}
+
 void editorOpen(char *filename) {
   free(E.filename);
   E.filename = strdup(filename);
@@ -94,18 +142,15 @@ void editorOpen(char *filename) {
   T.original_buffer = malloc(++T.original_length);
   fread(T.original_buffer, 1, T.original_length - 1, fp);
   T.original_buffer[T.original_length] = '\0';
-
-  char *line = NULL;
-  size_t linecap = 0;
-  ssize_t linelen;
-  while ((linelen = getline(&line, &linecap, fp)) != -1) {
-    while (linelen > 0 &&
-           (line[linelen - 1] == '\n' || line[linelen - 1] == '\r'))
-      linelen--;
-    editorAppendRow(E.numrows, line, linelen);
+  T.pieces[0].buffer = BUFFER_ORIGINAL;
+  T.pieces[0].start = 0;
+  T.pieces[0].length = T.original_length;
+  T.pieces_count = 1;
+  E.numrows = (T.original_length > 0) ? 1 : 0;
+  for (size_t i = 0; i < T.original_length; i++) {
+    if (T.original_buffer[i] == '\n')
+      E.numrows++;
   }
-
-  free(line);
   fclose(fp);
   E.dirty = 0;
 }

@@ -18,13 +18,6 @@ void editorRowInsertChar(erow *row, int at, int c) {
   editorUpdateRow(row);
   E.dirty++;
 }
-void editorInsertChar(int c) {
-  if (E.cy == E.numrows) {
-    editorAppendRow(E.numrows, "", 0);
-  }
-  editorRowInsertChar(&E.row[E.cy], E.cx, c);
-  E.cx++;
-}
 
 char *editorRowsToString(int *buflen) {
   int totlen = 0;
