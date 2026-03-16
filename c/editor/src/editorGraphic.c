@@ -7,7 +7,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 void editorMoveCursor(char key) {
-  erow *row = (E.cy >= E.numrows) ? NULL : &E.row[E.cy];
   switch (key) {
   case ARROW_LEFT:
     if (E.cx > 0) {
@@ -15,15 +14,15 @@ void editorMoveCursor(char key) {
     } else if (E.cx == 0) {
       if (E.cy > 0) {
         E.cy--;
-        E.cx = E.row[E.cy].size;
+        E.cx = E.row_cache_rsize[E.cy];
       }
     }
     break;
   case ARROW_RIGHT:
-    if (row && E.cx < row->size) {
+    if (E.row_cache[E.cy] && E.cx < E.row_cache_rsize[E.cy]) {
 
       E.cx++;
-    } else if (row && E.cx == row->size) {
+    } else if (E.row_cache[E.cy] && E.cx == E.row_cache_rsize[E.cy]) {
       E.cy++;
       E.cx = 0;
     }
@@ -41,8 +40,7 @@ void editorMoveCursor(char key) {
     }
     break;
   }
-  row = (E.cy >= E.numrows) ? NULL : &E.row[E.cy];
-  int rowlen = row ? row->size : 0;
+  int rowlen = E.row_cache[E.cy] ? E.row_cache_rsize[E.cy] : 0;
   if (E.cx > rowlen) {
     E.cx = rowlen;
   }
@@ -99,7 +97,7 @@ void editorRefreshScreen() {
   char buf[32];
 
   snprintf(buf, sizeof(buf), "\x1b[%d;%dH", (E.cy - E.rowoff) + 1,
-           (E.rx - E.coloff) + 1);
+           (E.row_cache_rsize[E.cy] - E.coloff) + 1);
   abAppend(&ab, buf, strlen(buf));
   abAppend(&ab, "\x1b[?25h", 6);
   write(STDOUT_FILENO, ab.buf, ab.len);
@@ -193,7 +191,7 @@ void editorProcessKeypress() {
       break;
     case END_KEY:
       if (E.cy < E.numrows)
-        E.cx = E.row[E.cy].size;
+        E.cx = E.row_cache_rsize[E.cy];
       break;
     case PAGE_UP:
     case PAGE_DOWN: {
@@ -259,7 +257,6 @@ void editorProcessKeypress() {
     case DEL_KEY:
       if (c == DEL_KEY)
         editorMoveCursor(ARROW_RIGHT);
-      editorDelChar();
       break;
     case CTRL_KEY('l'):
       break;
@@ -277,7 +274,6 @@ void initEditor() {
   initPieceTable();
   E.cx = 0;
   E.cy = 0;
-  E.rx = 0;
   E.rowoff = 0;
   E.numrows = 0;
   E.coloff = 0;
@@ -289,4 +285,10 @@ void initEditor() {
   if (getWindowsize(&E.screenRows, &E.screenCols) == -1)
     die("getWindowsize");
   E.screenRows -= 2;
+  if (E.cy < E.numrows) {
+    int row_size = E.line_offsets[E.cy + 1] - E.line_offsets[E.cy] - 1;
+    if (E.cx > row_size)
+      E.cx = row_size;
+  }
+  invalidateCacheFrom(E.cy);
 }

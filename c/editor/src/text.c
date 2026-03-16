@@ -8,31 +8,40 @@
 #include <strings.h>
 #include <sys/types.h>
 #include <unistd.h>
-void editorRowInsertChar(erow *row, int at, int c) {
-  if (at < 0 || at > row->size)
-    at = row->size;
-  row->chars = realloc(row->chars, row->size + 2);
-  memmove(&row->chars[at + 1], &row->chars[at], row->size - at + 1);
-  row->size++;
-  row->chars[at] = c;
-  editorUpdateRow(row);
+void editorInsertChar(int c) {
+  char buf[2] = {c, '\0'};
+  piece_table_insert(buf);
+
+  // Aggiorna line_offsets
+  for (int i = E.cy + 1; i <= E.numrows; i++) {
+    E.line_offsets[i]++;
+  }
+
+  E.cx++;
+  invalidateCacheFrom(E.cy);
   E.dirty++;
 }
 
 char *editorRowsToString(int *buflen) {
   int totlen = 0;
-  int j;
-  for (j = 0; j < E.numrows; j++)
-    totlen += E.row[j].size + 1;
-  *buflen = totlen;
-  char *buf = malloc(totlen);
-  char *p = buf;
-  for (j = 0; j < E.numrows; j++) {
-    memcpy(p, E.row[j].chars, E.row[j].size);
-    p += E.row[j].size;
-    *p = '\n';
-    p++;
+
+  for (int i = 0; i < T.pieces_count; i++) {
+    totlen += T.pieces[i].length;
   }
+
+  *buflen = totlen;
+  char *buf = malloc(totlen + 1);
+  char *p = buf;
+
+  for (int i = 0; i < T.pieces_count; i++) {
+    piece *piece = &T.pieces[i];
+    char *src =
+        (piece->buffer == BUFFER_ORIGINAL) ? T.original_buffer : T.add_buffer;
+    memcpy(p, src + piece->start, piece->length);
+    p += piece->length;
+  }
+
+  *p = '\0';
   return buf;
 }
 
@@ -62,52 +71,32 @@ void editorSave() {
   free(buf);
   editorSetStatusMessage("Can't save! I/O error: %s", strerror(errno));
 }
-void editorRowDelChar(erow *row, int at) {
-  if (at < 0 || at >= row->size)
-    return;
-  memmove(&row->chars[at], &row->chars[at + 1], row->size - at);
-  row->size--;
-  editorUpdateRow(row);
-  E.dirty++;
-}
-void editorDelChar() {
-  if (E.cy == E.numrows)
-    return;
-  if (E.cx == 0 && E.cy == 0)
-    return;
-  erow *row = &E.row[E.cy];
-  if (E.cx > 0) {
-    editorRowDelChar(row, E.cx - 1);
-    E.cx--;
-  } else {
-    E.cx = E.row[E.cy - 1].size;
-    editorRowAppendString(&E.row[E.cy - 1], row->chars, row->size);
-    editorDelRow(E.cy);
-    E.cy--;
-  }
-}
 void editorDelRow(int at) {
   if (at < 0 || at >= E.numrows)
     return;
-  editorFreeRow(&E.row[at]);
-  memmove(&E.row[at], &E.row[at + 1], sizeof(erow) * (E.numrows - at - 1));
+  for (int i = at; i < E.numrows; i++) {
+    E.line_offsets[i] = E.line_offsets[i + 1];
+  }
   E.numrows--;
+
+  invalidateCacheFrom(at);
   E.dirty++;
 }
 void editorInsertNewline() {
-  if (E.cx == 0) {
-    editorAppendRow(E.cy, "", 0);
-
-  } else {
-    erow *row = &E.row[E.cy];
-    editorAppendRow(E.cy + 1, &E.row->chars[E.cx], E.row->size - E.cx);
-    row = &E.row[E.cy];
-    row->size = E.cx;
-    row->chars[row->size] = '\0';
-    editorUpdateRow(row);
+  if (E.numrows + 2 > E.line_offsets_capacity) {
+    E.line_offsets_capacity *= 2;
+    E.line_offsets =
+        realloc(E.line_offsets, sizeof(int) * E.line_offsets_capacity);
   }
+  for (int i = E.numrows; i > E.cy; i--) {
+    E.line_offsets[i + 1] = E.line_offsets[i];
+  }
+  E.line_offsets[E.cy + 1] = E.cx + 1;
+  E.numrows++;
   E.cy++;
   E.cx = 0;
+  invalidateCacheFrom(E.cy);
+  E.dirty++;
 }
 char *editorPrompt(char *prompt) {
   size_t bufsize = 128;

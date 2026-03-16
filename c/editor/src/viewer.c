@@ -5,42 +5,105 @@
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
-int editorRowCxToRx(erow *row, int cx) {
-  int rx = 0;
-  int j;
-  for (j = 0; j < cx; j++) {
-    if (row->chars[j] == '\t')
-      rx += (KILO_TAB_STOP - 1) - (rx % KILO_TAB_STOP);
-    rx++;
+void invalidateCacheFrom(int row) {
+  if (!E.row_cache)
+    return;
+  for (int i = row; i < E.numrows; i++) {
+    free(E.row_cache[i]);
+    E.row_cache[i] = NULL;
   }
-  return rx;
+  E.row_cache_valid = 0;
 }
-void editorUpdateRow(erow *row) {
-  int tabs = 0;
-  int j;
-  for (j = 0; j < row->size; j++)
-    if (row->chars[j] == '\t')
-      tabs++;
-  free(row->render);
-  row->render = malloc(row->size + tabs * (KILO_TAB_STOP - 1) + 1);
-  int idx = 0;
-  for (j = 0; j < row->size; j++) {
-    if (row->chars[j] == '\t') {
-      row->render[idx++] = ' ';
-      while (idx % KILO_TAB_STOP != 0)
-        row->render[idx++] = ' ';
-    } else {
-      row->render[idx++] = row->chars[j];
+int editorGetColumn() {
+  if (E.cy < 0 || E.cy > E.numrows)
+    return 0;
+  return E.cx - E.line_offsets[E.cy];
+}
+int editorGetRowContent(int row, char *buf, int bufsize) {
+  if (row < 0 || row > E.numrows)
+    return -1;
+  int start = E.line_offsets[row];
+  int end = E.line_offsets[row + 1] - 1;
+  int len = end - start;
+  if (len >= bufsize)
+    len = bufsize - 1;
+  int buf_pos = 0;
+  int current_pos = 0;
+  for (int i = 0; i < T.pieces_count && buf_pos < len; i++) {
+    piece *p = &T.pieces[i];
+    int piece_start = current_pos;
+    int piece_end = current_pos + p->length;
+    if (piece_end > start && piece_start < end) {
+      char *src =
+          (p->buffer == BUFFER_ORIGINAL) ? T.original_buffer : T.add_buffer;
+
+      int copy_start = (piece_start < start) ? start - piece_start : 0;
+      int copy_end = (piece_end > end) ? end - piece_start : p->length;
+
+      memcpy(buf + buf_pos, src + p->start + copy_start, copy_end - copy_start);
+      buf_pos += copy_end - copy_start;
+    }
+    current_pos = piece_end;
+  }
+  buf[buf_pos] = '\0';
+  return buf_pos;
+}
+char *editorGetRenderedRow(int row) {
+  if (row < 0 || row >= E.numrows)
+    return NULL;
+  if (!E.row_cache) {
+    E.row_cache = calloc(E.numrows, sizeof(char *));
+    E.row_cache_rsize = calloc(E.numrows, sizeof(int));
+  }
+  if (E.row_cache[row]) {
+    return E.row_cache[row];
+  }
+  int start = E.line_offsets[row];
+  int end = E.line_offsets[row + 1] - 1;
+  int size = end - start;
+  char *row_content = malloc(size + 1);
+  editorGetRowContent(row, row_content, size + 1);
+  int render_size = size;
+  for (int i = 0; i < size; i++) {
+    if (row_content[i] == '\t') {
+      render_size += KILO_TAB_STOP - 1;
     }
   }
-  row->render[idx] = '\0';
-  row->rsize = idx;
+  char *rendered = malloc(render_size + 1);
+  int idx = 0;
+  for (int i = 0; i < size; i++) {
+    if (row_content[i] == '\t') {
+      rendered[idx++] = ' ';
+      while (idx % KILO_TAB_STOP != 0)
+        rendered[idx++] = ' ';
+    } else {
+      rendered[idx++] = row_content[i];
+    }
+  }
+  rendered[idx] = '\0';
+  free(row_content);
+  E.row_cache[row] = rendered;
+  E.row_cache_rsize[row] = idx;
+  return rendered;
 }
-
+void initLineOffset() {
+  free(E.line_offsets);
+  E.line_offsets = malloc(sizeof(int) * (E.numrows + 2));
+  E.line_offsets[0] = 0;
+  int line = 1;
+  for (size_t i = 0; i < T.original_length; i++) {
+    if (T.original_buffer[i] == '\n') {
+      E.line_offsets[line++] = i + 1;
+    }
+  }
+  E.line_offsets[E.numrows + 1] = T.original_length;
+  E.line_offsets_capacity = E.numrows + 2;
+}
 void editorScroll() {
-  E.rx = 0;
+  if (E.row_cache_rsize == NULL)
+    return;
   if (E.cy < E.numrows) {
-    E.rx = editorRowCxToRx(&E.row[E.cy], E.cx);
+    editorGetRenderedRow(E.cy);
   }
   if (E.cy < E.rowoff) {
     E.rowoff = E.cy;
@@ -48,20 +111,12 @@ void editorScroll() {
   if (E.cy >= E.rowoff + E.screenRows) {
     E.rowoff = E.cy - E.screenRows + 1;
   }
-  if (E.rx < E.coloff) {
-    E.coloff = E.rx;
+  if (E.row_cache_rsize[E.cy] < E.coloff) {
+    E.coloff = E.row_cache_rsize[E.cy];
   }
-  if (E.rx >= E.screenCols) {
-    E.coloff = E.rx - E.screenCols + 1;
+  if (E.row_cache_rsize[E.cy] >= E.screenCols) {
+    E.coloff = E.row_cache_rsize[E.cy] - E.screenCols + 1;
   }
-}
-void editorRowAppendString(erow *row, char *s, size_t len) {
-  row->chars = realloc(row->chars, row->size + len + 1);
-  memcpy(&row->chars[row->size], s, len);
-  row->size += len;
-  row->chars[row->size] = '\0';
-  editorUpdateRow(row);
-  E.dirty++;
 }
 void piece_table_insert(char *c) {
   int total_length = 0;
@@ -151,6 +206,8 @@ void editorOpen(char *filename) {
     if (T.original_buffer[i] == '\n')
       E.numrows++;
   }
+
+  void initLineOffset();
   fclose(fp);
   E.dirty = 0;
 }

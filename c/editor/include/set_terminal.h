@@ -16,7 +16,6 @@
 
 struct editorConfig {
   int cx, cy;
-  int rx;
   int rowoff;
   int screenRows;
   int screenCols;
@@ -85,22 +84,23 @@ void initEditor();
 void editorOpen(char *filename);
 void editorScroll();
 void piece_table_insert(char *c);
-void editorUpdateRow(erow *row);
 void abAppend(struct abuf *ab, const char *s, int len);
 void abFree(struct abuf *ab);
 void editorDrawStatusBar(struct abuf *ab);
 void editorSetStatusMessage(const char *fmt, ...);
 void editorDrawMessageBar(struct abuf *ab);
-void editorRowInsertChar(erow *row, int at, int c);
 char *editorRowsToString(int *buflen);
 void editorInsertChar(int c);
 void editorSave();
-void editorRowDelChar(erow *row, int at);
 void editorDelChar();
-void editorFreeRow(erow *row);
 void editorDelRow(int at);
-void editorRowAppendString(erow *row, char *s, size_t len);
 void editorInsertNewline();
 char *editorPrompt(char *prompt);
 void initPieceTable();
+void initLineOffset();
+void invalidateCacheFrom(int row);
+int editorGetColumn();
+int editorGetAbsolutePosition();
+int editorGetRowContent(int row, char *buf, int bufsize);
+char *editorGetRenderedRow(int row);
 #endif
