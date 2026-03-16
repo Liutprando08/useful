@@ -49,6 +49,8 @@ int editorGetRowContent(int row, char *buf, int bufsize) {
   return buf_pos;
 }
 char *editorGetRenderedRow(int row) {
+  if (E.line_offsets == NULL)
+    return 0;
   if (row < 0 || row >= E.numrows)
     return NULL;
   if (!E.row_cache) {
@@ -100,8 +102,7 @@ void initLineOffset() {
   E.line_offsets_capacity = E.numrows + 2;
 }
 void editorScroll() {
-  if (E.row_cache_rsize == NULL)
-    return;
+  // TODO everything
   if (E.cy < E.numrows) {
     editorGetRenderedRow(E.cy);
   }
@@ -111,10 +112,10 @@ void editorScroll() {
   if (E.cy >= E.rowoff + E.screenRows) {
     E.rowoff = E.cy - E.screenRows + 1;
   }
-  if (E.row_cache_rsize[E.cy] < E.coloff) {
+  if (E.cy < E.numrows && E.row_cache_rsize[E.cy] < E.coloff) {
     E.coloff = E.row_cache_rsize[E.cy];
   }
-  if (E.row_cache_rsize[E.cy] >= E.screenCols) {
+  if (E.cy < E.numrows && E.row_cache_rsize[E.cy] >= E.screenCols) {
     E.coloff = E.row_cache_rsize[E.cy] - E.screenCols + 1;
   }
 }
@@ -131,7 +132,6 @@ void piece_table_insert(char *c) {
     T.add_capacity *= 2;
     T.add_buffer = realloc(T.add_buffer, T.add_capacity);
   }
-
   int add_position = T.add_length;
   memcpy(T.add_buffer + T.add_length, c, len);
   T.add_length += len;
@@ -196,7 +196,7 @@ void editorOpen(char *filename) {
   fseek(fp, 0, SEEK_SET);
   T.original_buffer = malloc(++T.original_length);
   fread(T.original_buffer, 1, T.original_length - 1, fp);
-  T.original_buffer[T.original_length] = '\0';
+  T.original_buffer[T.original_length - 1] = '\0';
   T.pieces[0].buffer = BUFFER_ORIGINAL;
   T.pieces[0].start = 0;
   T.pieces[0].length = T.original_length;
@@ -204,10 +204,10 @@ void editorOpen(char *filename) {
   E.numrows = (T.original_length > 0) ? 1 : 0;
   for (size_t i = 0; i < T.original_length; i++) {
     if (T.original_buffer[i] == '\n')
-      E.numrows++;
+      E.numrows = E.numrows + 1;
   }
 
-  void initLineOffset();
+  initLineOffset();
   fclose(fp);
   E.dirty = 0;
 }

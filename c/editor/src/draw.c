@@ -27,13 +27,11 @@ void editorDrawRows(struct abuf *ab) {
         abAppend(ab, "~", 1);
       }
     } else {
-      char *rendered = editorGetRenderedRow(filerow);
       int len = E.row_cache_rsize[filerow] - E.coloff;
       if (len < 0)
         len = 0;
       if (len > E.screenCols)
         len = E.screenCols;
-      abAppend(ab, &rendered[E.coloff], len);
     }
     abAppend(ab, "\x1b[K", 3);
     abAppend(ab, "\r\n", 2);

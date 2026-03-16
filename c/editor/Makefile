@@ -23,4 +23,3 @@ clean:
 	rm -rf $(OBJ_DIR) $(TARGET) compile_commands.json
 
 .PHONY: all clean
-

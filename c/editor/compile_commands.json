@@ -32,6 +32,22 @@
     "output": "obj/src/editorGraphic.o"
   },
   {
+    "file": "src/pieceTable.c",
+    "arguments": [
+      "gcc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "src/pieceTable.c",
+      "-o",
+      "obj/src/pieceTable.o"
+    ],
+    "directory": "/home/etsume/useful/c/editor",
+    "output": "obj/src/pieceTable.o"
+  },
+  {
     "file": "src/raw.c",
     "arguments": [
       "gcc",
@@ -48,6 +64,22 @@
     "output": "obj/src/raw.o"
   },
   {
+    "file": "src/text.c",
+    "arguments": [
+      "gcc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "src/text.c",
+      "-o",
+      "obj/src/text.o"
+    ],
+    "directory": "/home/etsume/useful/c/editor",
+    "output": "obj/src/text.o"
+  },
+  {
     "file": "src/viewer.c",
     "arguments": [
       "gcc",
@@ -62,5 +94,21 @@
     ],
     "directory": "/home/etsume/useful/c/editor",
     "output": "obj/src/viewer.o"
+  },
+  {
+    "file": "main.c",
+    "arguments": [
+      "gcc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "main.c",
+      "-o",
+      "obj/main.o"
+    ],
+    "directory": "/home/etsume/useful/c/editor",
+    "output": "obj/main.o"
   }
 ]

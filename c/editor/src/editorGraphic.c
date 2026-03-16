@@ -275,7 +275,7 @@ void initEditor() {
   E.cx = 0;
   E.cy = 0;
   E.rowoff = 0;
-  E.numrows = 0;
+  E.numrows = 1;
   E.coloff = 0;
   E.mode = NORMAL_MODE;
   E.filename = NULL;
@@ -285,10 +285,6 @@ void initEditor() {
   if (getWindowsize(&E.screenRows, &E.screenCols) == -1)
     die("getWindowsize");
   E.screenRows -= 2;
-  if (E.cy < E.numrows) {
-    int row_size = E.line_offsets[E.cy + 1] - E.line_offsets[E.cy] - 1;
-    if (E.cx > row_size)
-      E.cx = row_size;
-  }
+  E.screenCols -= 1;
   invalidateCacheFrom(E.cy);
 }
