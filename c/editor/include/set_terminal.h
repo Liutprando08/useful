@@ -103,4 +103,5 @@ int editorGetColumn();
 int editorGetAbsolutePosition();
 int editorGetRowContent(int row, char *buf, int bufsize);
 char *editorGetRenderedRow(int row);
+void editorCleanup();
 #endif

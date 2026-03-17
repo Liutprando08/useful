@@ -5,6 +5,24 @@
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
+void editorCleanup() {
+
+  if (E.row_cache) {
+    for (int i = 0; i < E.numrows; i++) {
+      free(E.row_cache[i]);
+    }
+    free(E.row_cache);
+  }
+  free(E.row_cache_rsize);
+
+  free(E.line_offsets);
+
+  free(E.filename);
+
+  free(T.original_buffer);
+  free(T.add_buffer);
+  free(T.pieces);
+}
 void invalidateCacheFrom(int row) {
   if (!E.row_cache)
     return;
@@ -51,7 +69,7 @@ int editorGetRowContent(int row, char *buf, int bufsize) {
 char *editorGetRenderedRow(int row) {
   if (E.line_offsets == NULL)
     return 0;
-  if (row < 0 || row >= E.numrows)
+  if (row < 0 || row >= E.numrows - 1)
     return NULL;
   if (!E.row_cache) {
     E.row_cache = calloc(E.numrows, sizeof(char *));
@@ -102,8 +120,7 @@ void initLineOffset() {
   E.line_offsets_capacity = E.numrows + 2;
 }
 void editorScroll() {
-  // TODO everything
-  if (E.cy < E.numrows) {
+  if (E.cy < E.numrows - 1) {
     editorGetRenderedRow(E.cy);
   }
   if (E.cy < E.rowoff) {
