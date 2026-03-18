@@ -1,6 +1,8 @@
-#include "set_terminal.h"
+#include "piece_table.h"
 #include <stdlib.h>
+
 pieceTable T;
+
 void initPieceTable() {
   T.original_buffer = NULL;
   T.original_length = 0;

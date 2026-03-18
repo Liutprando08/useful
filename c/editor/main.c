@@ -1,12 +1,12 @@
-#include "set_terminal.h"
-#include <termios.h>
+#include "buffer.h"
+#include "editor.h"
+#include "terminal.h"
 #include <unistd.h>
 
 int main(int argc, char *argv[]) {
   rawMode();
   initEditor();
   if (argc >= 2) {
-
     editorOpen(argv[1]);
   }
   editorSetStatusMessage("HELP: Ctrl-S = save | Ctrl-Q = quit");

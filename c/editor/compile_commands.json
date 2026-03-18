@@ -1,8 +1,56 @@
 [
   {
+    "file": "src/buffer.c",
+    "arguments": [
+      "cc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "src/buffer.c",
+      "-o",
+      "obj/src/buffer.o"
+    ],
+    "directory": "/home/etsume/useful/c/editor",
+    "output": "obj/src/buffer.o"
+  },
+  {
+    "file": "src/cache.c",
+    "arguments": [
+      "cc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "src/cache.c",
+      "-o",
+      "obj/src/cache.o"
+    ],
+    "directory": "/home/etsume/useful/c/editor",
+    "output": "obj/src/cache.o"
+  },
+  {
+    "file": "src/cursor.c",
+    "arguments": [
+      "cc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "src/cursor.c",
+      "-o",
+      "obj/src/cursor.o"
+    ],
+    "directory": "/home/etsume/useful/c/editor",
+    "output": "obj/src/cursor.o"
+  },
+  {
     "file": "src/draw.c",
     "arguments": [
-      "gcc",
+      "cc",
       "-Wall",
       "-Wextra",
       "-g",
@@ -16,57 +64,73 @@
     "output": "obj/src/draw.o"
   },
   {
-    "file": "src/editorGraphic.c",
+    "file": "src/editor.c",
     "arguments": [
-      "gcc",
+      "cc",
       "-Wall",
       "-Wextra",
       "-g",
       "-Iinclude",
       "-c",
-      "src/editorGraphic.c",
+      "src/editor.c",
       "-o",
-      "obj/src/editorGraphic.o"
+      "obj/src/editor.o"
     ],
     "directory": "/home/etsume/useful/c/editor",
-    "output": "obj/src/editorGraphic.o"
+    "output": "obj/src/editor.o"
   },
   {
-    "file": "src/pieceTable.c",
+    "file": "src/input.c",
     "arguments": [
-      "gcc",
+      "cc",
       "-Wall",
       "-Wextra",
       "-g",
       "-Iinclude",
       "-c",
-      "src/pieceTable.c",
+      "src/input.c",
       "-o",
-      "obj/src/pieceTable.o"
+      "obj/src/input.o"
     ],
     "directory": "/home/etsume/useful/c/editor",
-    "output": "obj/src/pieceTable.o"
+    "output": "obj/src/input.o"
   },
   {
-    "file": "src/raw.c",
+    "file": "src/piece_table.c",
     "arguments": [
-      "gcc",
+      "cc",
       "-Wall",
       "-Wextra",
       "-g",
       "-Iinclude",
       "-c",
-      "src/raw.c",
+      "src/piece_table.c",
       "-o",
-      "obj/src/raw.o"
+      "obj/src/piece_table.o"
     ],
     "directory": "/home/etsume/useful/c/editor",
-    "output": "obj/src/raw.o"
+    "output": "obj/src/piece_table.o"
+  },
+  {
+    "file": "src/terminal.c",
+    "arguments": [
+      "cc",
+      "-Wall",
+      "-Wextra",
+      "-g",
+      "-Iinclude",
+      "-c",
+      "src/terminal.c",
+      "-o",
+      "obj/src/terminal.o"
+    ],
+    "directory": "/home/etsume/useful/c/editor",
+    "output": "obj/src/terminal.o"
   },
   {
     "file": "src/text.c",
     "arguments": [
-      "gcc",
+      "cc",
       "-Wall",
       "-Wextra",
       "-g",
@@ -82,7 +146,7 @@
   {
     "file": "src/viewer.c",
     "arguments": [
-      "gcc",
+      "cc",
       "-Wall",
       "-Wextra",
       "-g",
@@ -98,7 +162,7 @@
   {
     "file": "main.c",
     "arguments": [
-      "gcc",
+      "cc",
       "-Wall",
       "-Wextra",
       "-g",

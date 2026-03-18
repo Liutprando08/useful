@@ -1,4 +1,6 @@
-#include "set_terminal.h"
+#include "buffer.h"
+#include "editor.h"
+#include "piece_table.h"
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>

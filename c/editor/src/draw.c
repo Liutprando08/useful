@@ -1,5 +1,6 @@
 
-#include "set_terminal.h"
+#include "buffer.h"
+#include "editor.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
