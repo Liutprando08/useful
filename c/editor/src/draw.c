@@ -33,7 +33,6 @@ void editorDrawRows(struct abuf *ab) {
         len = 0;
       if (len > E.screenCols)
         len = E.screenCols;
-      // Stampa solo la porzione visibile della riga
       abAppend(ab, row + E.coloff, len);
     }
     abAppend(ab, "\x1b[K", 3);

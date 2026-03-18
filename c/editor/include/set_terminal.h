@@ -99,9 +99,10 @@ char *editorPrompt(char *prompt);
 void initPieceTable();
 void initLineOffset();
 void invalidateCacheFrom(int row);
-int editorGetColumn();
 int editorGetAbsolutePosition();
 int editorGetRowContent(int row, char *buf, int bufsize);
 char *editorGetRenderedRow(int row);
 void editorCleanup();
+char getCharAtPos(int pos);
+void initLineOffsetFromPieces();
 #endif

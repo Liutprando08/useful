@@ -9,14 +9,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 void editorInsertChar(int c) {
-  char buf[2] = {c, '\0'};
+  char buf[1] = {c};
   piece_table_insert(buf);
-
-  // Aggiorna line_offsets
-  for (int i = E.cy + 1; i <= E.numrows; i++) {
-    E.line_offsets[i]++;
-  }
-
+  initLineOffsetFromPieces();
   E.cx++;
   invalidateCacheFrom(E.cy);
   E.dirty++;

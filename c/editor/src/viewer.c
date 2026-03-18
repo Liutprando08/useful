@@ -32,11 +32,6 @@ void invalidateCacheFrom(int row) {
   }
   E.row_cache_valid = 0;
 }
-int editorGetColumn() {
-  if (E.cy < 0 || E.cy > E.numrows)
-    return 0;
-  return E.cx - E.line_offsets[E.cy];
-}
 int editorGetRowContent(int row, char *buf, int bufsize) {
   if (row < 0 || row > E.numrows)
     return -1;
@@ -106,6 +101,49 @@ char *editorGetRenderedRow(int row) {
   E.row_cache_rsize[row] = idx;
   return rendered;
 }
+void initLineOffsetFromPieces() {
+  free(E.line_offsets);
+
+  int total_len = 0;
+  for (int i = 0; i < T.pieces_count; i++) {
+    total_len += T.pieces[i].length;
+  }
+
+  E.numrows = 1;
+  for (int i = 0; i < total_len; i++) {
+    char ch = getCharAtPos(i);
+    if (ch == '\n')
+      E.numrows++;
+  }
+
+  E.line_offsets = malloc(sizeof(int) * (E.numrows + 2));
+  E.line_offsets[0] = 0;
+
+  int line = 1;
+  int pos = 0;
+  while (pos < total_len) {
+    char ch = getCharAtPos(pos);
+    if (ch == '\n') {
+      E.line_offsets[line++] = pos + 1;
+    }
+    pos++;
+  }
+  E.line_offsets[E.numrows + 1] = total_len;
+  E.line_offsets_capacity = E.numrows + 2;
+}
+char getCharAtPos(int pos) {
+  int current = 0;
+  for (int i = 0; i < T.pieces_count; i++) {
+    piece *p = &T.pieces[i];
+    if (current + p->length > pos) {
+      char *src =
+          (p->buffer == BUFFER_ORIGINAL) ? T.original_buffer : T.add_buffer;
+      return src[p->start + (pos - current)];
+    }
+    current += p->length;
+  }
+  return '\0';
+}
 void initLineOffset() {
   free(E.line_offsets);
   E.line_offsets = malloc(sizeof(int) * (E.numrows + 2));
@@ -137,8 +175,9 @@ void editorScroll() {
   }
 }
 void piece_table_insert(char *c) {
+
   int total_length = 0;
-  int len = strlen(c);
+  int len = 1;
   for (int i = 0; i < T.pieces_count; i++) {
     total_length += T.pieces[i].length;
   }
@@ -152,14 +191,15 @@ void piece_table_insert(char *c) {
   int add_position = T.add_length;
   memcpy(T.add_buffer + T.add_length, c, len);
   T.add_length += len;
+  int position = E.line_offsets[E.cy] + E.cx;
   int current_pos = 0;
   int piece_index = -1;
   int offset = 0;
   for (int i = 0; i < T.pieces_count; i++) {
     int piece_end = current_pos + T.pieces[i].length;
-    if (E.cx <= piece_end) {
+    if (position <= piece_end) {
       piece_index = i;
-      offset = E.cx - current_pos;
+      offset = position - current_pos;
       break;
     }
     current_pos = piece_end;
@@ -176,7 +216,7 @@ void piece_table_insert(char *c) {
     T.pieces = realloc(T.pieces, sizeof(piece) * T.pieces_capacity);
   }
 
-  for (int i = T.pieces_count; i > new_pieces_needed + piece_index; i--) {
+  for (int i = T.pieces_count; i >= piece_index + new_pieces_needed; i--) {
     T.pieces[i] = T.pieces[i - new_pieces_needed];
   }
   int new_index = piece_index;
