@@ -14,7 +14,7 @@ void invalidateCacheFrom(int row) {
 char *editorGetRenderedRow(int row) {
   if (E.line_offsets == NULL)
     return 0;
-  if (row < 0 || row >= E.numrows - 1)
+  if (row < 0 || row >= E.numrows)
     return NULL;
   if (!E.row_cache) {
     E.row_cache = calloc(E.numrows, sizeof(char *));
@@ -27,6 +27,8 @@ char *editorGetRenderedRow(int row) {
   int end = E.line_offsets[row + 1] - 1;
   int size = end - start;
   char *row_content = malloc(size + 1);
+  if (row_content == NULL)
+    return NULL;
   editorGetRowContent(row, row_content, size + 1);
   int render_size = size;
   for (int i = 0; i < size; i++) {

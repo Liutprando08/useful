@@ -36,6 +36,7 @@ char editorReadKey() {
             return PAGE_DOWN;
           case '7':
             return HOME_KEY;
+            return HOME_KEY;
           case '8':
             return END_KEY;
           }
@@ -103,7 +104,7 @@ void editorProcessKeypress() {
       } else if (c == PAGE_DOWN) {
         E.cy = E.rowoff + E.screenRows - 1;
         if (E.cy > E.numrows)
-          E.cy = E.numrows;
+          E.cy = E.numrows - 1;
       }
       int times = E.screenRows;
       while (times--)

@@ -23,7 +23,7 @@ char getCharAtPos(int pos) {
 }
 
 int editorGetRowContent(int row, char *buf, int bufsize) {
-  if (row < 0 || row > E.numrows)
+  if (row < 0 || row >= E.numrows)
     return -1;
   int start = E.line_offsets[row];
   int end = E.line_offsets[row + 1] - 1;
@@ -62,7 +62,7 @@ void initLineOffsetFromPieces() {
     if (ch == '\n')
       E.numrows++;
   }
-  E.line_offsets = malloc(sizeof(int) * (E.numrows + 2));
+  E.line_offsets = calloc(E.numrows + 2, sizeof(int));
   E.line_offsets[0] = 0;
   int line = 1;
   int pos = 0;
@@ -79,7 +79,7 @@ void initLineOffsetFromPieces() {
 
 void initLineOffset() {
   free(E.line_offsets);
-  E.line_offsets = malloc(sizeof(int) * (E.numrows + 2));
+  E.line_offsets = calloc(E.numrows + 2, sizeof(int));
   E.line_offsets[0] = 0;
   int line = 1;
   for (size_t i = 0; i < T.original_length; i++) {
@@ -147,8 +147,8 @@ void piece_table_insert(char *c) {
     T.pieces_capacity *= 2;
     T.pieces = realloc(T.pieces, sizeof(piece) * T.pieces_capacity);
   }
-  for (int i = T.pieces_count; i >= piece_index + new_pieces_needed; i--) {
-    T.pieces[i] = T.pieces[i - new_pieces_needed];
+  for (int i = T.pieces_count - 1; i >= piece_index; i--) {
+    T.pieces[i + new_pieces_needed] = T.pieces[i];
   }
   int new_index = piece_index;
   if (offset > 0) {
@@ -183,7 +183,7 @@ void editorOpen(char *filename) {
   T.original_buffer[T.original_length - 1] = '\0';
   T.pieces[0].buffer = BUFFER_ORIGINAL;
   T.pieces[0].start = 0;
-  T.pieces[0].length = T.original_length;
+  T.pieces[0].length = T.original_length - 1;
   T.pieces_count = 1;
   E.numrows = (T.original_length > 0) ? 1 : 0;
   for (size_t i = 0; i < T.original_length; i++) {

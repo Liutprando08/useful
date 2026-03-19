@@ -29,12 +29,15 @@ void editorDrawRows(struct abuf *ab) {
       }
     } else {
       char *row = editorGetRenderedRow(filerow);
-      int len = E.row_cache_rsize[filerow] - E.coloff;
-      if (len < 0)
-        len = 0;
-      if (len > E.screenCols)
-        len = E.screenCols;
-      abAppend(ab, row + E.coloff, len);
+      int len = 0;
+      if (row != NULL) {
+        len = E.row_cache_rsize[filerow] - E.coloff;
+        if (len < 0)
+          len = 0;
+        if (len > E.screenCols)
+          len = E.screenCols;
+      }
+      abAppend(ab, row, len);
     }
     abAppend(ab, "\x1b[K", 3);
     abAppend(ab, "\r\n", 2);

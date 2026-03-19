@@ -42,12 +42,14 @@ void editorMoveCursor(char key) {
     if (E.row_cache[E.cy] && E.cx < E.row_cache_rsize[E.cy]) {
       E.cx++;
     } else if (E.row_cache[E.cy] && E.cx == E.row_cache_rsize[E.cy]) {
-      E.cy++;
-      E.cx = 0;
+      if (E.cy < E.numrows - 1) { // ADD THIS CHECK
+        E.cy++;
+        E.cx = 0;
+      }
     }
     break;
   case ARROW_DOWN:
-    if (E.cy < E.numrows) {
+    if (E.cy < E.numrows - 1) {
       E.cy++;
     }
     break;
