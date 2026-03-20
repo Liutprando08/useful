@@ -110,58 +110,116 @@ void editorScroll() {
 }
 
 void piece_table_delete() {
-
+  // dichiara position
   int position = E.line_offsets[E.cy] + E.cx - 1;
-  if (position < 0)
-    return;
+  /* Calcola la lunghezza totale */
+  int doc_length = 0;
+  for (int i = 0; i < T.pieces_count; i++) {
+    doc_length += T.pieces[i].length;
+  }
 
+  /* Trova il piece iniziale e finale da eliminare */
   int current_pos = 0;
-  int piece_index = -1;
-  int offset = 0;
+  int start_piece = -1, start_offset = 0;
+  int end_piece = -1, end_offset = 0;
 
   for (int i = 0; i < T.pieces_count; i++) {
+    int piece_start = current_pos;
     int piece_end = current_pos + T.pieces[i].length;
-    if (position < piece_end) {
-      piece_index = i;
-      offset = position - current_pos;
+
+    if (start_piece == -1 && position < piece_end) {
+      start_piece = i;
+      start_offset = position - piece_start;
+    }
+
+    if (end_piece == -1 && position + 1 <= piece_end) {
+      end_piece = i;
+      end_offset = position + 1 - piece_start;
       break;
     }
+
     current_pos = piece_end;
   }
 
-  if (piece_index == -1)
+  if (start_piece == -1 || end_piece == -1)
     return;
 
-  piece old_piece = T.pieces[piece_index];
+  /* ============================================================
+   * Eliminazione: compattiamo i pezzi
+   * ============================================================
+   *
+   * Casi possibili:
+   * - Stesso piece: dividilo in due parti (salva la parte che resta)
+   * - Più pezzi: rimuovi quelli in mezzo, unisci i bordi
+   */
 
-  if (old_piece.length == 1) {
+  if (start_piece == end_piece) {
+    /* Stesso piece: dividi in due */
+    piece p = T.pieces[start_piece];
 
-    for (int i = piece_index; i < T.pieces_count - 1; i++) {
-      T.pieces[i] = T.pieces[i + 1];
+    if (start_offset > 0 && end_offset < p.length) {
+      /*keep_left | delete | keep_right -> keep_left + keep_right*/
+      T.pieces[start_piece].length = start_offset;
+
+      /* Sposta per fare spazio */
+      for (int i = T.pieces_count; i > start_piece + 1; i--) {
+        T.pieces[i] = T.pieces[i - 1];
+      }
+
+      T.pieces[start_piece + 1].buffer = p.buffer;
+      T.pieces[start_piece + 1].start = p.start + end_offset;
+      T.pieces[start_piece + 1].length = p.length - end_offset;
+      T.pieces_count++;
+    } else if (start_offset == 0) {
+      /* Cancella dall'inizio del piece */
+      T.pieces[start_piece].start = p.start + end_offset;
+      T.pieces[start_piece].length = p.length - end_offset;
+    } else {
+      /* Cancella dalla fine del piece */
+      T.pieces[start_piece].length = start_offset;
     }
-    T.pieces_count--;
-  } else if (offset == 0) {
-
-    T.pieces[piece_index].start++;
-    T.pieces[piece_index].length--;
-  } else if (offset == old_piece.length - 1) {
-
-    T.pieces[piece_index].length--;
   } else {
+    /* Più pezzi: elimina l'inizio e la fine, rimuovi quelli in mezzo */
 
-    for (int i = T.pieces_count; i > piece_index; i--) {
-      T.pieces[i] = T.pieces[i - 1];
+    /* Primo piece: tiene solo l'inizio */
+    if (start_offset > 0) {
+      T.pieces[start_piece].length = start_offset;
+    } else {
+      /* Rimuovi completamente questo piece */
+      for (int i = start_piece; i < end_piece; i++) {
+        T.pieces[i] = T.pieces[i + 1];
+      }
+      end_piece--;
+      start_piece--;
     }
 
-    T.pieces[piece_index].length = offset;
+    /* Ultimo piece: tiene solo la fine */
+    piece end_p = T.pieces[end_piece];
+    int keep_from_end = end_p.length - end_offset;
 
-    T.pieces[piece_index + 1].buffer = old_piece.buffer;
-    T.pieces[piece_index + 1].start = old_piece.start + offset + 1;
-    T.pieces[piece_index + 1].length = old_piece.length - offset - 1;
+    if (keep_from_end > 0) {
+      T.pieces[end_piece].start = end_p.start + end_offset;
+      T.pieces[end_piece].length = keep_from_end;
+    } else {
+      /* Rimuovi questo piece */
+      for (int i = end_piece; i < T.pieces_count - 1; i++) {
+        T.pieces[i] = T.pieces[i + 1];
+      }
+      T.pieces_count--;
+    }
 
-    T.pieces_count++;
+    /* Rimuovi i pezzi in mezzo (se ce ne sono) */
+    int pieces_to_remove = end_piece - start_piece - 1;
+    if (pieces_to_remove > 0) {
+      for (int i = start_piece + 1; i < T.pieces_count - pieces_to_remove;
+           i++) {
+        T.pieces[i] = T.pieces[i + pieces_to_remove];
+      }
+      T.pieces_count -= pieces_to_remove;
+    }
   }
 }
+
 void piece_table_insert(char *c) {
   int total_length = 0;
   int len = 1;
