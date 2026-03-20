@@ -26,6 +26,7 @@ typedef struct {
 extern pieceTable T;
 
 void initPieceTable();
+void piece_table_delete();
 void piece_table_insert(char *c);
 
 #endif

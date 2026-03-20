@@ -109,6 +109,59 @@ void editorScroll() {
   }
 }
 
+void piece_table_delete() {
+
+  int position = E.line_offsets[E.cy] + E.cx - 1;
+  if (position < 0)
+    return;
+
+  int current_pos = 0;
+  int piece_index = -1;
+  int offset = 0;
+
+  for (int i = 0; i < T.pieces_count; i++) {
+    int piece_end = current_pos + T.pieces[i].length;
+    if (position < piece_end) {
+      piece_index = i;
+      offset = position - current_pos;
+      break;
+    }
+    current_pos = piece_end;
+  }
+
+  if (piece_index == -1)
+    return;
+
+  piece old_piece = T.pieces[piece_index];
+
+  if (old_piece.length == 1) {
+
+    for (int i = piece_index; i < T.pieces_count - 1; i++) {
+      T.pieces[i] = T.pieces[i + 1];
+    }
+    T.pieces_count--;
+  } else if (offset == 0) {
+
+    T.pieces[piece_index].start++;
+    T.pieces[piece_index].length--;
+  } else if (offset == old_piece.length - 1) {
+
+    T.pieces[piece_index].length--;
+  } else {
+
+    for (int i = T.pieces_count; i > piece_index; i--) {
+      T.pieces[i] = T.pieces[i - 1];
+    }
+
+    T.pieces[piece_index].length = offset;
+
+    T.pieces[piece_index + 1].buffer = old_piece.buffer;
+    T.pieces[piece_index + 1].start = old_piece.start + offset + 1;
+    T.pieces[piece_index + 1].length = old_piece.length - offset - 1;
+
+    T.pieces_count++;
+  }
+}
 void piece_table_insert(char *c) {
   int total_length = 0;
   int len = 1;

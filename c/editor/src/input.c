@@ -152,12 +152,12 @@ void editorProcessKeypress() {
       break;
     case '\x1b':
       E.mode = NORMAL_MODE;
+      E.cx--;
       break;
     case BACKSPACE:
     case CTRL_KEY('h'):
     case DEL_KEY:
-      if (c == DEL_KEY)
-        editorMoveCursor(ARROW_RIGHT);
+      editorDelChar();
       break;
     case CTRL_KEY('l'):
       break;

@@ -34,15 +34,15 @@ void editorMoveCursor(char key) {
     } else if (E.cx == 0) {
       if (E.cy > 0) {
         E.cy--;
-        E.cx = E.row_cache_rsize[E.cy];
+        E.cx = E.row_cache_rsize[E.cy] - 1;
       }
     }
     break;
   case ARROW_RIGHT:
-    if (E.row_cache[E.cy] && E.cx < E.row_cache_rsize[E.cy]) {
+    if (E.row_cache[E.cy] && E.cx < E.row_cache_rsize[E.cy] - 1) {
       E.cx++;
-    } else if (E.row_cache[E.cy] && E.cx == E.row_cache_rsize[E.cy]) {
-      if (E.cy < E.numrows - 1) { // ADD THIS CHECK
+    } else if (E.row_cache[E.cy] && E.cx == E.row_cache_rsize[E.cy] - 1) {
+      if (E.cy < E.numrows - 1) {
         E.cy++;
         E.cx = 0;
       }
@@ -59,7 +59,7 @@ void editorMoveCursor(char key) {
     }
     break;
   }
-  int rowlen = E.row_cache[E.cy] ? E.row_cache_rsize[E.cy] : 0;
+  int rowlen = E.row_cache[E.cy] ? E.row_cache_rsize[E.cy] - 1 : 0;
   if (E.cx > rowlen) {
     E.cx = rowlen;
   }
