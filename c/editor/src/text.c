@@ -132,10 +132,48 @@ void editorInsertNewline() {
 void editorDelChar() {
   if (E.cx == 0 && E.cy == 0)
     return;
-  if (E.cx == 0)
-    return;
+
   invalidateCacheFrom(E.cy);
 
+  if (E.cx == 0) {
+    // Backspace at start of line - join with previous line
+    // Delete the newline that ends the previous line
+    int newline_pos = E.line_offsets[E.cy] - 1;
+    piece_table_delete_range(newline_pos, newline_pos + 1);
+
+    // Calculate the deleted length (1 for the newline)
+    int deleted = 1;
+
+    // Move cursor to end of previous line
+    E.cx = E.row_cache_rsize[E.cy - 1];
+    E.cy--;
+
+    // Shift line_offsets down from current row onwards
+    for (int i = E.cy + 1; i <= E.numrows; i++) {
+      E.line_offsets[i] -= deleted;
+    }
+
+    // Decrement row count
+    E.numrows--;
+
+    // Shift row_cache arrays
+    if (E.row_cache) {
+      for (int i = E.cy + 1; i < E.numrows; i++) {
+        E.row_cache[i] = E.row_cache[i + 1];
+        E.row_cache_rsize[i] = E.row_cache_rsize[i + 1];
+      }
+      // Clear the last entry
+      if (E.numrows >= 0) {
+        E.row_cache[E.numrows] = NULL;
+        E.row_cache_rsize[E.numrows] = 0;
+      }
+    }
+
+    E.dirty++;
+    return;
+  }
+
+  // Normal backspace - delete character before cursor
   E.cx--;
   piece_table_delete();
 
@@ -147,6 +185,7 @@ void editorDelChar() {
 
   E.row_cache_rsize[E.cy]--;
 }
+
 char *editorPrompt(char *prompt) {
   size_t bufsize = 128;
   char *buf = malloc(bufsize);

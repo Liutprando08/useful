@@ -27,6 +27,7 @@ extern pieceTable T;
 
 void initPieceTable();
 void piece_table_delete();
+void piece_table_delete_range(int start, int end);
 void piece_table_insert(char *c);
 
 #endif
