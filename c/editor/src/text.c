@@ -134,6 +134,7 @@ void editorDelChar() {
     return;
   if (E.cx == 0)
     return;
+  invalidateCacheFrom(E.cy);
 
   E.cx--;
   piece_table_delete();
@@ -142,8 +143,9 @@ void editorDelChar() {
     E.line_offsets[i]--;
   }
 
-  invalidateCacheFrom(E.cy);
-  E.dirty++;
+  E.line_offsets[E.cy] = E.line_offsets[E.cy] + 1;
+
+  E.row_cache_rsize[E.cy]--;
 }
 char *editorPrompt(char *prompt) {
   size_t bufsize = 128;
