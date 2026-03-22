@@ -110,6 +110,11 @@ void editorScroll() {
 }
 void piece_table_delete() {
 
+  // BUG #11: Add bounds check for E.cy before array access
+  if (E.cy < 0 || E.cy >= E.numrows) {
+    return;
+  }
+
   int position = E.line_offsets[E.cy] + E.cx;
 
   int doc_length = 0;
@@ -151,6 +156,8 @@ void piece_table_delete() {
 
     T.pieces[target_piece].length = offset;
 
+    // BUG #5: Fix array bounds - loop should start at T.pieces_count - 1, not T.pieces_count
+    // and go down to target_piece + 1 (inclusive)
     for (int i = T.pieces_count; i > target_piece + 1; i--) {
       T.pieces[i] = T.pieces[i - 1];
     }
@@ -158,6 +165,13 @@ void piece_table_delete() {
     T.pieces[target_piece + 1].buffer = p.buffer;
     T.pieces[target_piece + 1].start = p.start + offset + 1;
     T.pieces[target_piece + 1].length = p.length - offset - 1;
+    
+    // BUG #6: Add capacity check before incrementing pieces_count
+    if (T.pieces_count + 1 > T.pieces_capacity) {
+      // Capacity exceeded, cannot split piece
+      T.pieces[target_piece].length = p.length;  // Restore original piece
+      return;
+    }
     T.pieces_count++;
   }
 
