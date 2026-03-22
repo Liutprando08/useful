@@ -62,5 +62,9 @@ void editorMoveCursor(char key) {
   int rowlen = E.row_cache[E.cy] ? E.row_cache_rsize[E.cy] - 1 : 0;
   if (E.cx > rowlen) {
     E.cx = rowlen;
+
+    if (E.row_cache[E.cy][E.cx] == '\t') {
+      E.cx += KILO_TAB_STOP;
+    }
   }
 }

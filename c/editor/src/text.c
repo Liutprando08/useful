@@ -147,7 +147,6 @@ void editorDelChar() {
       E.dirty++;
       return;
     }
-
     E.cx = E.row_cache_rsize[E.cy - 1];
     E.cy--;
 
@@ -168,7 +167,6 @@ void editorDelChar() {
     }
 
     E.numrows--;
-
     if (E.row_cache) {
       E.row_cache[E.numrows] = NULL;
       E.row_cache_rsize[E.numrows] = 0;
@@ -178,7 +176,6 @@ void editorDelChar() {
     E.dirty++;
     return;
   }
-
   E.cx--;
   piece_table_delete();
 

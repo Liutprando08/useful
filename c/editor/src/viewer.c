@@ -147,22 +147,17 @@ void piece_table_delete() {
   } else if (offset == p.length - 1) {
     T.pieces[target_piece].length--;
   } else {
-    // --- SPLIT PIECE CASE ---
 
-    // 1. Check capacity BEFORE modifying any arrays (Fixes Buffer Overflow)
     if (T.pieces_count + 1 > T.pieces_capacity) {
-      return; // Cannot split, bail out safely
+      return;
     }
 
-    // 2. Truncate the current piece
     T.pieces[target_piece].length = offset;
 
-    // 3. Shift subsequent pieces right to make room
     for (int i = T.pieces_count; i > target_piece + 1; i--) {
       T.pieces[i] = T.pieces[i - 1];
     }
 
-    // 4. Insert the new second half of the split piece
     T.pieces[target_piece + 1].buffer = p.buffer;
     T.pieces[target_piece + 1].start = p.start + offset + 1;
     T.pieces[target_piece + 1].length = p.length - offset - 1;
@@ -170,7 +165,6 @@ void piece_table_delete() {
     T.pieces_count++;
   }
 
-  // Cleanup: Remove target piece entirely if its length drops to 0
   if (T.pieces[target_piece].length == 0) {
     for (int i = target_piece; i < T.pieces_count - 1; i++) {
       T.pieces[i] = T.pieces[i + 1];

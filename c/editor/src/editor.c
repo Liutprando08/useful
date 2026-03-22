@@ -1,5 +1,5 @@
-#include "buffer.h"
 #include "editor.h"
+#include "buffer.h"
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -18,6 +18,7 @@ void editorRefreshScreen() {
   abAppend(&ab, buf, strlen(buf));
   abAppend(&ab, "\x1b[?25h", 6);
   write(STDOUT_FILENO, ab.buf, ab.len);
+
   abFree(&ab);
 }
 

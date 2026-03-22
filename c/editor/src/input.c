@@ -152,7 +152,7 @@ void editorProcessKeypress() {
       break;
     case '\x1b':
       E.mode = NORMAL_MODE;
-      // BUG #15: Add bounds check - don't go below 0
+
       if (E.cx > 0) {
         E.cx--;
       }
