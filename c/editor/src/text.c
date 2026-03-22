@@ -130,86 +130,66 @@ void editorInsertNewline() {
   E.dirty++;
 }
 void editorDelChar() {
-  // BUG #13: Improved guard - check both conditions properly
   if (E.cx == 0 && E.cy == 0)
     return;
 
   invalidateCacheFrom(E.cy);
 
   if (E.cx == 0) {
-    // Line joining case: delete newline and merge lines
 
-    piece_table_delete();
-    int deleted = 1;
-
-    // BUG #1, #2: Add NULL check and bounds check before accessing cache
     if (!E.row_cache || !E.row_cache_rsize || E.cy <= 0) {
+
       E.cy--;
       E.numrows--;
       for (int i = E.cy + 1; i <= E.numrows; i++) {
-        E.line_offsets[i] -= deleted;
-      }
-      if (E.row_cache) {
-        for (int i = E.cy; i < E.numrows; i++) {
-          E.row_cache[i] = E.row_cache[i + 1];
-          E.row_cache_rsize[i] = E.row_cache_rsize[i + 1];
-        }
+        E.line_offsets[i] -= 1;
       }
       E.dirty++;
       return;
     }
 
-    // Move cursor to end of previous line
     E.cx = E.row_cache_rsize[E.cy - 1];
     E.cy--;
 
-    // Shift line_offsets down from current row onwards
-    for (int i = E.cy + 1; i <= E.numrows; i++) {
-      E.line_offsets[i] -= deleted;
+    piece_table_delete();
+
+    if (E.row_cache) {
+      free(E.row_cache[E.cy + 1]);
     }
 
-    // Decrement row count
-    E.numrows--;
-    
-    // BUG #4, #9: Shift row_cache arrays - properly free old content before overwriting
-    if (E.row_cache) {
-      for (int i = E.cy; i < E.numrows; i++) {
-        // BUG #9: Free the old cache entry before overwriting
-        free(E.row_cache[i]);
+    for (int i = E.cy + 1; i < E.numrows; i++) {
+
+      E.line_offsets[i] = E.line_offsets[i + 1] - 1;
+
+      if (E.row_cache) {
         E.row_cache[i] = E.row_cache[i + 1];
         E.row_cache_rsize[i] = E.row_cache_rsize[i + 1];
       }
-      // BUG #3: Fix heap overflow - check bounds before writing
-      if (E.numrows >= 0 && E.numrows < E.line_offsets_capacity) {
-        E.row_cache[E.numrows] = NULL;
-        E.row_cache_rsize[E.numrows] = 0;
-      }
     }
 
-    // BUG #10: Invalidate cache for merged line
+    E.numrows--;
+
+    if (E.row_cache) {
+      E.row_cache[E.numrows] = NULL;
+      E.row_cache_rsize[E.numrows] = 0;
+    }
+
     invalidateCacheFrom(E.cy);
     E.dirty++;
     return;
   }
 
-  // Normal backspace - delete character before cursor
   E.cx--;
   piece_table_delete();
 
-  // Update line offsets for all subsequent lines
-  for (int i = E.cy; i <= E.numrows; i++) {
+  for (int i = E.cy + 1; i <= E.numrows; i++) {
     E.line_offsets[i]--;
   }
 
-  // BUG #8: REMOVED contradictory line that was adding 1 back
-  // OLD: E.line_offsets[E.cy] = E.line_offsets[E.cy] + 1;  // This undid the decrement!
-
-  // BUG #7, #12: Add bounds check and NULL check for underflow
   if (E.row_cache_rsize && E.row_cache_rsize[E.cy] > 0) {
     E.row_cache_rsize[E.cy]--;
   }
 }
-
 char *editorPrompt(char *prompt) {
   size_t bufsize = 128;
   char *buf = malloc(bufsize);

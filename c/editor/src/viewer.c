@@ -109,22 +109,18 @@ void editorScroll() {
   }
 }
 void piece_table_delete() {
-
-  // BUG #11: Add bounds check for E.cy before array access
-  if (E.cy < 0 || E.cy >= E.numrows) {
+  if (E.cy < 0 || E.cy >= E.numrows)
     return;
-  }
 
   int position = E.line_offsets[E.cy] + E.cx;
-
   int doc_length = 0;
+
   for (int i = 0; i < T.pieces_count; i++) {
     doc_length += T.pieces[i].length;
   }
 
-  if (position < 0 || position >= doc_length) {
+  if (position < 0 || position >= doc_length)
     return;
-  }
 
   int current_pos = 0;
   int target_piece = -1;
@@ -146,35 +142,35 @@ void piece_table_delete() {
   piece p = T.pieces[target_piece];
 
   if (offset == 0) {
-
     T.pieces[target_piece].start++;
     T.pieces[target_piece].length--;
   } else if (offset == p.length - 1) {
-
     T.pieces[target_piece].length--;
   } else {
+    // --- SPLIT PIECE CASE ---
 
+    // 1. Check capacity BEFORE modifying any arrays (Fixes Buffer Overflow)
+    if (T.pieces_count + 1 > T.pieces_capacity) {
+      return; // Cannot split, bail out safely
+    }
+
+    // 2. Truncate the current piece
     T.pieces[target_piece].length = offset;
 
-    // BUG #5: Fix array bounds - loop should start at T.pieces_count - 1, not T.pieces_count
-    // and go down to target_piece + 1 (inclusive)
+    // 3. Shift subsequent pieces right to make room
     for (int i = T.pieces_count; i > target_piece + 1; i--) {
       T.pieces[i] = T.pieces[i - 1];
     }
 
+    // 4. Insert the new second half of the split piece
     T.pieces[target_piece + 1].buffer = p.buffer;
     T.pieces[target_piece + 1].start = p.start + offset + 1;
     T.pieces[target_piece + 1].length = p.length - offset - 1;
-    
-    // BUG #6: Add capacity check before incrementing pieces_count
-    if (T.pieces_count + 1 > T.pieces_capacity) {
-      // Capacity exceeded, cannot split piece
-      T.pieces[target_piece].length = p.length;  // Restore original piece
-      return;
-    }
+
     T.pieces_count++;
   }
 
+  // Cleanup: Remove target piece entirely if its length drops to 0
   if (T.pieces[target_piece].length == 0) {
     for (int i = target_piece; i < T.pieces_count - 1; i++) {
       T.pieces[i] = T.pieces[i + 1];
