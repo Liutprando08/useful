@@ -6,11 +6,11 @@
 #define KILO_QUIT_TIMES 3
 #define CTRL_KEY(x) ((x) & 0x1f)
 
-#include <stddef.h>
-#include <time.h>
 #include "buffer.h"
 #include "piece_table.h"
 #include "terminal.h"
+#include <stddef.h>
+#include <time.h>
 
 struct editorConfig {
   int cx, cy;
@@ -30,6 +30,8 @@ struct editorConfig {
   char **row_cache;
   int *row_cache_rsize;
   int row_cache_valid;
+  int *tab_skip;
+  int tab_counter;
 };
 
 extern struct editorConfig E;

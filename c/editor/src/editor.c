@@ -5,6 +5,7 @@
 #include <unistd.h>
 
 void editorRefreshScreen() {
+  E.tab_counter = 0;
   editorScroll();
   struct abuf ab = ABUF_INIT;
   abAppend(&ab, "\x1b[H", 3);
@@ -32,6 +33,7 @@ void initEditor() {
   E.mode = NORMAL_MODE;
   E.filename = NULL;
   E.dirty = 0;
+  E.tab_counter = 0;
   E.statusmsg[0] = '\0';
   E.statusmsg_time = 0;
   if (getWindowsize(&E.screenRows, &E.screenCols) == -1)

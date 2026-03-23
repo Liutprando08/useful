@@ -26,28 +26,146 @@ int getCursorPosition(int *rows, int *cols) {
   return 0;
 }
 
+char *getActualLineContent() {
+  if (E.cy < 0 || E.cy >= E.numrows)
+    return NULL;
+
+  int row_size = E.line_offsets[E.cy + 1] - E.line_offsets[E.cy];
+  char *content = malloc(row_size + 1);
+  if (!content)
+    return NULL;
+
+  editorGetRowContent(E.cy, content, row_size + 1);
+  return content;
+}
+
+int renderedPosToActualPos(int renderCol) {
+  char *content = getActualLineContent();
+  if (!content)
+    return 0;
+
+  int actualCol = 0;
+  int renderPos = 0;
+
+  while (actualCol < (int)strlen(content) && renderPos < renderCol) {
+    if (content[actualCol] == '\t') {
+
+      renderPos++;
+      while (renderPos % KILO_TAB_STOP != 0)
+        renderPos++;
+    } else {
+      renderPos++;
+    }
+    actualCol++;
+  }
+
+  free(content);
+  return actualCol;
+}
+
+int skipConsecutiveTabs(int actualCol) {
+  char *content = getActualLineContent();
+  if (!content)
+    return E.cx;
+
+  int contentLen = strlen(content);
+  int renderCol = 0;
+
+  for (int i = 0; i < actualCol && i < contentLen; i++) {
+    if (content[i] == '\t') {
+      renderCol++;
+      while (renderCol % KILO_TAB_STOP != 0)
+        renderCol++;
+    } else {
+      renderCol++;
+    }
+  }
+
+  int tempActual = actualCol;
+  while (tempActual < contentLen && content[tempActual] == '\t') {
+    renderCol++;
+    while (renderCol % KILO_TAB_STOP != 0)
+      renderCol++;
+    tempActual++;
+  }
+
+  free(content);
+  return renderCol;
+}
+
 void editorMoveCursor(char key) {
   switch (key) {
-  case ARROW_LEFT:
+  case ARROW_LEFT: {
     if (E.cx > 0) {
       E.cx--;
+
+      int actualCol = renderedPosToActualPos(E.cx);
+      char *content = getActualLineContent();
+
+      if (content && actualCol > 0 && content[actualCol - 1] == '\t') {
+
+        int tabStart = actualCol - 1;
+        while (tabStart > 0 && content[tabStart - 1] == '\t') {
+          tabStart--;
+        }
+
+        int renderPos = 0;
+        for (int i = 0; i < tabStart; i++) {
+          if (content[i] == '\t') {
+            renderPos++;
+            while (renderPos % KILO_TAB_STOP != 0)
+              renderPos++;
+          } else {
+            renderPos++;
+          }
+        }
+        E.cx = renderPos;
+      }
+
+      free(content);
     } else if (E.cx == 0) {
       if (E.cy > 0) {
         E.cy--;
-        E.cx = E.row_cache_rsize[E.cy] - 1;
+        E.cx = E.row_cache_rsize[E.cy];
       }
     }
     break;
-  case ARROW_RIGHT:
-    if (E.row_cache[E.cy] && E.cx < E.row_cache_rsize[E.cy] - 1) {
-      E.cx++;
-    } else if (E.row_cache[E.cy] && E.cx == E.row_cache_rsize[E.cy] - 1) {
+  }
+  case ARROW_RIGHT: {
+    if (!E.row_cache[E.cy])
+      break;
+
+    int lineRenderLen = E.row_cache_rsize[E.cy];
+
+    if (E.cx >= lineRenderLen) {
       if (E.cy < E.numrows - 1) {
         E.cy++;
         E.cx = 0;
+      } else {
+        break;
       }
+
+    } else {
+
+      E.cx++;
     }
+
+    int actualCol = renderedPosToActualPos(E.cx);
+    char *content = getActualLineContent();
+
+    lineRenderLen = E.row_cache[E.cy] ? E.row_cache_rsize[E.cy] : 0;
+
+    if (content && actualCol < (int)strlen(content) &&
+        content[actualCol] == '\t') {
+      E.cx = skipConsecutiveTabs(actualCol);
+
+      if (E.cx > lineRenderLen)
+        E.cx = lineRenderLen;
+    }
+
+    free(content);
     break;
+  }
   case ARROW_DOWN:
     if (E.cy < E.numrows - 1) {
       E.cy++;
@@ -58,13 +176,5 @@ void editorMoveCursor(char key) {
       E.cy--;
     }
     break;
-  }
-  int rowlen = E.row_cache[E.cy] ? E.row_cache_rsize[E.cy] - 1 : 0;
-  if (E.cx > rowlen) {
-    E.cx = rowlen;
-
-    if (E.row_cache[E.cy][E.cx] == '\t') {
-      E.cx += KILO_TAB_STOP;
-    }
   }
 }
