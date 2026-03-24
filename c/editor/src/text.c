@@ -176,7 +176,12 @@ void editorDelChar() {
     E.dirty++;
     return;
   }
-  E.cx--;
+
+  char char_to_delete = getCharAtRenderedPos(E.cx - 1);
+  int rendered_width = (char_to_delete == '\t') ? KILO_TAB_STOP : 1;
+
+  E.cx -= rendered_width;
+
   piece_table_delete();
 
   for (int i = E.cy + 1; i <= E.numrows; i++) {
@@ -184,8 +189,10 @@ void editorDelChar() {
   }
 
   if (E.row_cache_rsize && E.row_cache_rsize[E.cy] > 0) {
-    E.row_cache_rsize[E.cy]--;
+    E.row_cache_rsize[E.cy] -= rendered_width;
   }
+
+  E.dirty++;
 }
 char *editorPrompt(char *prompt) {
   size_t bufsize = 128;

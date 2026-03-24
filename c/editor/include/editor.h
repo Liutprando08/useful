@@ -7,6 +7,7 @@
 #define CTRL_KEY(x) ((x) & 0x1f)
 
 #include "buffer.h"
+#include "cursor.h"
 #include "piece_table.h"
 #include "terminal.h"
 #include <stddef.h>

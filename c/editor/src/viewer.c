@@ -112,7 +112,9 @@ void piece_table_delete() {
   if (E.cy < 0 || E.cy >= E.numrows)
     return;
 
-  int position = E.line_offsets[E.cy] + E.cx;
+  
+  int actual_col = renderedPosToActualPos(E.cx);
+  int position = E.line_offsets[E.cy] + actual_col;
   int doc_length = 0;
 
   for (int i = 0; i < T.pieces_count; i++) {
