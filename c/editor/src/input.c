@@ -171,9 +171,7 @@ void editorProcessKeypress() {
       editorSave();
       break;
     case '\t': {
-      for (int i = 0; i < KILO_TAB_STOP; i++) {
-        editorInsertChar(' ');
-      }
+      editorInsertChar('\t');
       break;
     }
       editorInsertChar(c);

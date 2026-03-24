@@ -189,22 +189,22 @@ void editorMoveCursor(char key) {
     } else {
 
       E.cx++;
+      int actualCol = renderedPosToActualPos(E.cx);
+      char *content = getActualLineContent();
+
+      lineRenderLen = E.row_cache[E.cy] ? E.row_cache_rsize[E.cy] : 0;
+
+      if (content && actualCol < (int)strlen(content) &&
+          content[actualCol] == '\t') {
+        E.cx = skipConsecutiveTabs(actualCol);
+
+        if (E.cx > lineRenderLen)
+          E.cx = lineRenderLen;
+      }
+
+      free(content);
     }
 
-    int actualCol = renderedPosToActualPos(E.cx);
-    char *content = getActualLineContent();
-
-    lineRenderLen = E.row_cache[E.cy] ? E.row_cache_rsize[E.cy] : 0;
-
-    if (content && actualCol < (int)strlen(content) &&
-        content[actualCol] == '\t') {
-      E.cx = skipConsecutiveTabs(actualCol);
-
-      if (E.cx > lineRenderLen)
-        E.cx = lineRenderLen;
-    }
-
-    free(content);
     break;
   }
   case ARROW_DOWN:
