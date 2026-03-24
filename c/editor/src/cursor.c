@@ -63,7 +63,6 @@ int renderedPosToActualPos(int renderCol) {
   return actualCol;
 }
 
-// Get the actual character that occupies the given rendered position
 char getCharAtRenderedPos(int renderCol) {
   char *content = getActualLineContent();
   if (!content)
@@ -211,12 +210,32 @@ void editorMoveCursor(char key) {
   case ARROW_DOWN:
     if (E.cy < E.numrows - 1) {
       E.cy++;
+      E.cx = 0;
     }
+
+    int actualCol = renderedPosToActualPos(E.cx);
+    char *content = getActualLineContent();
+    if (content && actualCol < (int)strlen(content) &&
+        content[actualCol] == '\t') {
+      E.cx = skipConsecutiveTabs(actualCol);
+    }
+
+    free(content);
     break;
   case ARROW_UP:
     if (E.cy > 0) {
       E.cy--;
+      E.cx = 0;
     }
+
+    actualCol = renderedPosToActualPos(E.cx);
+    content = getActualLineContent();
+    if (content && actualCol < (int)strlen(content) &&
+        content[actualCol] == '\t') {
+      E.cx = skipConsecutiveTabs(actualCol);
+    }
+
+    free(content);
     break;
   }
 }
