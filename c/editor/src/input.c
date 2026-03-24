@@ -170,6 +170,14 @@ void editorProcessKeypress() {
     case CTRL_KEY('s'):
       editorSave();
       break;
+    case '\t': {
+      for (int i = 0; i < KILO_TAB_STOP; i++) {
+        editorInsertChar(' ');
+      }
+      break;
+    }
+      editorInsertChar(c);
+      break;
     default:
       editorInsertChar(c);
       break;
