@@ -50,33 +50,6 @@ int editorGetRowContent(int row, char *buf, int bufsize) {
   return buf_pos;
 }
 
-void initLineOffsetFromPieces() {
-  free(E.line_offsets);
-  int total_len = 0;
-  for (int i = 0; i < T.pieces_count; i++) {
-    total_len += T.pieces[i].length;
-  }
-  E.numrows = 1;
-  for (int i = 0; i < total_len; i++) {
-    char ch = getCharAtPos(i);
-    if (ch == '\n')
-      E.numrows++;
-  }
-  E.line_offsets = calloc(E.numrows + 2, sizeof(int));
-  E.line_offsets[0] = 0;
-  int line = 1;
-  int pos = 0;
-  while (pos < total_len) {
-    char ch = getCharAtPos(pos);
-    if (ch == '\n') {
-      E.line_offsets[line++] = pos + 1;
-    }
-    pos++;
-  }
-  E.line_offsets[E.numrows + 1] = total_len;
-  E.line_offsets_capacity = E.numrows + 2;
-}
-
 void initLineOffset() {
   free(E.line_offsets);
   E.line_offsets = calloc(E.numrows + 2, sizeof(int));
@@ -112,7 +85,6 @@ void piece_table_delete() {
   if (E.cy < 0 || E.cy >= E.numrows)
     return;
 
-  
   int actual_col = renderedPosToActualPos(E.cx);
   int position = E.line_offsets[E.cy] + actual_col;
   int doc_length = 0;
@@ -250,7 +222,7 @@ void editorOpen(char *filename) {
   T.pieces[0].start = 0;
   T.pieces[0].length = T.original_length - 1;
   T.pieces_count = 1;
-  E.numrows = (T.original_length > 0) ? 1 : 0;
+  E.numrows = 0;
   for (size_t i = 0; i < T.original_length; i++) {
     if (T.original_buffer[i] == '\n')
       E.numrows = E.numrows + 1;

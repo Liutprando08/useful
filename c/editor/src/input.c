@@ -132,7 +132,10 @@ void editorProcessKeypress() {
       E.mode = INSERT_MODE;
       break;
     case 'a':
-      E.cx++;
+      if (E.row_cache_rsize[E.cy] > 1) {
+
+        E.cx++;
+      }
       E.mode = INSERT_MODE;
       break;
     case CTRL_KEY('l'):
