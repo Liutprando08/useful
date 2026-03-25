@@ -1,0 +1,6 @@
+I;Mario;Rossi;2000.00
+I;Anna;Bianchi;2200.00
+I;Giovanni;Verdi;2100.00
+M;Carlo;Neri;3000.00;5000.00
+M;Laura;Ferrari;3200.00;6000.00
+I;Paolo;Gallo;1900.00

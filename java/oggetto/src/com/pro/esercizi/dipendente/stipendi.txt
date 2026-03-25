@@ -1,0 +1,12 @@
+=== RIEPILOGO STIPENDI ANNUI ===
+
+Nome            Cognome         Tipo            Stipendio Annuo
+===========================================================
+Mario           Rossi           Impiegato              24000.00
+Anna            Bianchi         Impiegato              26400.00
+Giovanni        Verdi           Impiegato              25200.00
+Carlo           Neri            Manager                41000.00
+Laura           Ferrari         Manager                44400.00
+Paolo           Gallo           Impiegato              22800.00
+===========================================================
+TOTALE STIPENDI ANNUI:                                183800.00
