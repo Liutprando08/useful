@@ -1,6 +1,6 @@
 package com.pro.esercizi.spedizione;
 
-import com.pro.esercizi.interfaces;
+import com.pro.esercizi.interfaces.viaggio;
 
 public class itinerario implements viaggio {
 
@@ -44,6 +44,12 @@ public class itinerario implements viaggio {
   public String toString() {
     return "itinerario [partenza=" + partenza + ", destinazione=" + destinazione + ", distanzaKm=" + distanzaKm
         + ", getPartenza()=" + getPartenza() + ", durataStimataGiorni()=" + durataStimataGiorni() + "]";
+  }
+
+  @Override
+  public double distanzaKm() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'distanzaKm'");
   }
 
 }
