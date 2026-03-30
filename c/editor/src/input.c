@@ -1,4 +1,5 @@
 #include "editor.h"
+#include "piece_table.h"
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -170,12 +171,7 @@ void editorProcessKeypress() {
     case CTRL_KEY('s'):
       editorSave();
       break;
-    case '\t': {
-      editorInsertChar('\t');
-      break;
-    }
-      editorInsertChar(c);
-      break;
+    case '\t':
     default:
       editorInsertChar(c);
       break;

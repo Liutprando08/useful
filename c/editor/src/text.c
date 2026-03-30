@@ -1,4 +1,5 @@
 #include "buffer.h"
+#include "cursor.h"
 #include "editor.h"
 #include "piece_table.h"
 #include <ctype.h>
@@ -12,10 +13,12 @@
 #include <unistd.h>
 void editorInsertChar(int c) {
   char buf[2] = {c, '\0'};
+
   piece_table_insert(buf);
 
   for (int i = E.cy + 1; i <= E.numrows; i++) {
     E.line_offsets[i]++;
+    ;
   }
 
   E.cx++;

@@ -1,5 +1,4 @@
 #include "editor.h"
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -27,13 +26,9 @@ int getCursorPosition(int *rows, int *cols) {
 }
 
 char *getActualLineContent() {
-  if (E.cy < 0 || E.cy >= E.numrows)
-    return NULL;
 
   int row_size = E.line_offsets[E.cy + 1] - E.line_offsets[E.cy];
   char *content = malloc(row_size + 1);
-  if (!content)
-    return NULL;
 
   editorGetRowContent(E.cy, content, row_size + 1);
   return content;
@@ -41,8 +36,6 @@ char *getActualLineContent() {
 
 int renderedPosToActualPos(int renderCol) {
   char *content = getActualLineContent();
-  if (!content)
-    return 0;
 
   int actualCol = 0;
   int renderPos = 0;
@@ -65,8 +58,6 @@ int renderedPosToActualPos(int renderCol) {
 
 char getCharAtRenderedPos(int renderCol) {
   char *content = getActualLineContent();
-  if (!content)
-    return '\0';
 
   int actualCol = 0;
   int renderPos = 0;
@@ -106,8 +97,6 @@ char getCharAtRenderedPos(int renderCol) {
 
 int skipConsecutiveTabs(int actualCol) {
   char *content = getActualLineContent();
-  if (!content)
-    return E.cx;
 
   int contentLen = strlen(content);
   int renderCol = 0;
