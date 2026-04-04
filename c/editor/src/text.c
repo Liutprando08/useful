@@ -21,7 +21,11 @@ void editorInsertChar(int c) {
     ;
   }
 
-  E.cx++;
+  if (c == '\t') {
+    E.cx += KILO_TAB_STOP - (E.cx % KILO_TAB_STOP);
+  } else {
+    E.cx++;
+  }
   invalidateCacheFrom(E.cy);
   E.dirty++;
 }
@@ -104,7 +108,8 @@ void editorInsertNewline() {
     E.line_offsets[i + 1] = E.line_offsets[i];
   }
 
-  E.line_offsets[E.cy + 1] = E.line_offsets[E.cy] + E.cx + 1;
+  int actualCol = renderedPosToActualPos(E.cx);
+  E.line_offsets[E.cy + 1] = E.line_offsets[E.cy] + actualCol + 1;
 
   piece_table_insert("\n");
 
@@ -181,10 +186,27 @@ void editorDelChar() {
   }
 
   char char_to_delete = getCharAtRenderedPos(E.cx - 1);
-  int rendered_width = (char_to_delete == '\t') ? KILO_TAB_STOP : 1;
+  int rendered_width;
+  if (char_to_delete == '\t') {
+    int actualCol = renderedPosToActualPos(E.cx - 1);
+    char *content = getActualLineContent();
+    int col = 0;
+    for (int i = 0; i < actualCol; i++) {
+      if (content[i] == '\t') {
+        col += KILO_TAB_STOP - (col % KILO_TAB_STOP);
+      } else {
+        col++;
+      }
+    }
 
-  E.cx -= rendered_width;
+    rendered_width = KILO_TAB_STOP - (col % KILO_TAB_STOP);
+    E.cx -= rendered_width;
 
+    free(content);
+  } else {
+    rendered_width = 1;
+    E.cx -= 1;
+  }
   piece_table_delete();
 
   for (int i = E.cy + 1; i <= E.numrows; i++) {

@@ -34,10 +34,15 @@ char *editorGetRenderedRow(int row) {
     return NULL;
   editorGetRowContent(row, row_content, size + 1);
   int render_size = size;
+  int col = 0;
+
   for (int i = 0; i < size; i++) {
     if (row_content[i] == '\t') {
-      render_size += KILO_TAB_STOP - 1;
-      E.tab_skip[row]++;
+      int spaces = KILO_TAB_STOP - (col % KILO_TAB_STOP);
+      render_size += spaces - 1;
+      col += spaces;
+    } else {
+      col++;
     }
   }
   char *rendered = malloc(render_size + 1);
