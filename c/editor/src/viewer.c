@@ -50,6 +50,72 @@ int editorGetRowContent(int row, char *buf, int bufsize) {
   return buf_pos;
 }
 
+void initLineOffsetFromPieces() {
+  int old_numrows = E.numrows;
+
+  int total_len = 0;
+  for (int i = 0; i < T.pieces_count; i++) {
+    total_len += T.pieces[i].length;
+  }
+
+  E.numrows = 1;
+  int current_pos = 0;
+  for (int i = 0; i < T.pieces_count; i++) {
+    piece *p = &T.pieces[i];
+    char *src =
+        (p->buffer == BUFFER_ORIGINAL) ? T.original_buffer : T.add_buffer;
+    for (int j = 0; j < p->length; j++) {
+      if (src[p->start + j] == '\n') {
+        E.numrows++;
+      }
+      current_pos++;
+    }
+  }
+
+  int *new_offsets = realloc(E.line_offsets, (E.numrows + 2) * sizeof(int));
+  if (!new_offsets) {
+    E.numrows = old_numrows;
+    return;
+  }
+  E.line_offsets = new_offsets;
+
+  E.line_offsets[0] = 0;
+  int line = 1;
+  current_pos = 0;
+  for (int i = 0; i < T.pieces_count; i++) {
+    piece *p = &T.pieces[i];
+    char *src =
+        (p->buffer == BUFFER_ORIGINAL) ? T.original_buffer : T.add_buffer;
+    for (int j = 0; j < p->length; j++) {
+      if (src[p->start + j] == '\n') {
+        E.line_offsets[line++] = current_pos + 1;
+      }
+      current_pos++;
+    }
+  }
+  E.line_offsets[E.numrows + 1] = total_len;
+  E.line_offsets_capacity = E.numrows + 2;
+
+  if (E.row_cache != NULL) {
+
+    for (int i = 0; i < old_numrows && E.row_cache[i] != NULL; i++) {
+      free(E.row_cache[i]);
+      E.row_cache[i] = NULL;
+    }
+
+    E.row_cache = realloc(E.row_cache, (E.numrows + 2) * sizeof(char *));
+    E.row_cache_rsize =
+        realloc(E.row_cache_rsize, (E.numrows + 2) * sizeof(int));
+    E.tab_skip = realloc(E.tab_skip, (E.numrows + 2) * sizeof(int));
+
+    for (int i = old_numrows; i < E.numrows + 2; i++) {
+      E.row_cache[i] = NULL;
+      E.row_cache_rsize[i] = 0;
+      E.tab_skip[i] = 0;
+    }
+  }
+}
+
 void initLineOffset() {
   free(E.line_offsets);
   E.line_offsets = calloc(E.numrows + 2, sizeof(int));
@@ -85,7 +151,7 @@ void piece_table_delete() {
   if (E.cy < 0 || E.cy >= E.numrows)
     return;
 
-  int actual_col = renderedPosToActualPos(E.cx);
+  int actual_col = E.cx;
   int position = E.line_offsets[E.cy] + actual_col;
   int doc_length = 0;
 
@@ -222,7 +288,7 @@ void editorOpen(char *filename) {
   T.pieces[0].start = 0;
   T.pieces[0].length = T.original_length - 1;
   T.pieces_count = 1;
-  E.numrows = 0;
+  E.numrows = (T.original_length > 0) ? 1 : 0;
   for (size_t i = 0; i < T.original_length; i++) {
     if (T.original_buffer[i] == '\n')
       E.numrows = E.numrows + 1;

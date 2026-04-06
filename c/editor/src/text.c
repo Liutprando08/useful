@@ -21,11 +21,8 @@ void editorInsertChar(int c) {
     ;
   }
 
-  if (c == '\t') {
-    E.cx += KILO_TAB_STOP - (E.cx % KILO_TAB_STOP);
-  } else {
-    E.cx++;
-  }
+  E.cx++;
+
   invalidateCacheFrom(E.cy);
   E.dirty++;
 }
@@ -91,50 +88,12 @@ void editorDelRow(int at) {
   E.dirty++;
 }
 void editorInsertNewline() {
-  if (E.numrows + 3 > E.line_offsets_capacity) {
-    E.line_offsets_capacity =
-        (E.line_offsets_capacity == 0) ? 8 : E.line_offsets_capacity * 2;
-
-    int *new_offsets =
-        realloc(E.line_offsets, sizeof(int) * E.line_offsets_capacity);
-    if (!new_offsets)
-      return;
-    E.line_offsets = new_offsets;
-  }
 
   invalidateCacheFrom(E.cy);
-
-  for (int i = E.numrows; i > E.cy; i--) {
-    E.line_offsets[i + 1] = E.line_offsets[i];
-  }
-
-  int actualCol = renderedPosToActualPos(E.cx);
-  E.line_offsets[E.cy + 1] = E.line_offsets[E.cy] + actualCol + 1;
-
   piece_table_insert("\n");
-
-  for (int i = E.cy + 2; i <= E.numrows + 1; i++) {
-    E.line_offsets[i]++;
-  }
-
-  E.numrows++;
-
-  if (E.row_cache) {
-    char **new_cache = realloc(E.row_cache, sizeof(char *) * E.numrows);
-    int *new_rsize = realloc(E.row_cache_rsize, sizeof(int) * E.numrows);
-
-    if (new_cache && new_rsize) {
-      E.row_cache = new_cache;
-      E.row_cache_rsize = new_rsize;
-
-      E.row_cache[E.numrows - 1] = NULL;
-      E.row_cache_rsize[E.numrows - 1] = 0;
-    }
-  }
-
+  initLineOffsetFromPieces();
   E.cy++;
   E.cx = 0;
-
   E.dirty++;
 }
 void editorDelChar() {
@@ -185,28 +144,11 @@ void editorDelChar() {
     return;
   }
 
-  char char_to_delete = getCharAtRenderedPos(E.cx - 1);
   int rendered_width;
-  if (char_to_delete == '\t') {
-    int actualCol = renderedPosToActualPos(E.cx - 1);
-    char *content = getActualLineContent();
-    int col = 0;
-    for (int i = 0; i < actualCol; i++) {
-      if (content[i] == '\t') {
-        col += KILO_TAB_STOP - (col % KILO_TAB_STOP);
-      } else {
-        col++;
-      }
-    }
 
-    rendered_width = KILO_TAB_STOP - (col % KILO_TAB_STOP);
-    E.cx -= rendered_width;
+  rendered_width = 1;
+  E.cx -= 1;
 
-    free(content);
-  } else {
-    rendered_width = 1;
-    E.cx -= 1;
-  }
   piece_table_delete();
 
   for (int i = E.cy + 1; i <= E.numrows; i++) {

@@ -36,6 +36,11 @@ void initEditor() {
   E.tab_counter = 0;
   E.statusmsg[0] = '\0';
   E.statusmsg_time = 0;
+  E.line_offsets = NULL;
+  E.line_offsets_capacity = 0;
+  E.row_cache = NULL;
+  E.row_cache_rsize = NULL;
+  E.tab_skip = NULL;
   if (getWindowsize(&E.screenRows, &E.screenCols) == -1)
     die("getWindowsize");
   E.screenRows -= 2;
